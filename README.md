@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/0xShady/docktui/main/assets/logo.jpg" alt="docktui" width="200">
+  <img src="https://raw.githubusercontent.com/0xShady/docktui/main/assets/icon.png" alt="docktui" width="200">
 </p>
 
 <h1 align="center">docktui</h1>

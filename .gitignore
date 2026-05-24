@@ -12,3 +12,6 @@ coverage
 
 # npm
 .npmrc
+
+# macOS
+.DS_Store

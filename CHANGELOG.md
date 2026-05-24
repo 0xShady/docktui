@@ -7,6 +7,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-05-24
+
+### Changed
+
+- Point `package.json` `homepage` at the new landing site
+  ([docktui.com](https://docktui.com)) so the npm page links there
+  instead of the GitHub README anchor.
+- Swap the README hero image to the new PNG logo
+  (`assets/icon.png`) and remove the old JPG.
+
 ## [0.1.0] - 2026-05-24
 
 First public release on npm.
@@ -29,5 +39,6 @@ First public release on npm.
 - CI runs lint, format check, build, and tests on Ubuntu / macOS / Windows × Node 20 / 22.
 - npm tarball ships only `dist/` + `README.md` + `LICENSE` (~32 kB).
 
-[Unreleased]: https://github.com/0xShady/docktui/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/0xShady/docktui/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/0xShady/docktui/releases/tag/v0.1.1
 [0.1.0]: https://github.com/0xShady/docktui/releases/tag/v0.1.0

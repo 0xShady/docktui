@@ -1,6 +1,6 @@
 {
   "name": "docktui",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Docker Desktop for your terminal — a lightweight TUI for managing containers, images, and volumes",
   "bin": {
     "docktui": "./dist/cli.js"
@@ -15,7 +15,7 @@
   },
   "license": "MIT",
   "author": "Achraf El Fadili <contact@elfadiliachraf.tech>",
-  "homepage": "https://github.com/0xShady/docktui#readme",
+  "homepage": "https://docktui.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/0xShady/docktui.git"
