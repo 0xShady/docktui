@@ -49,6 +49,7 @@ export class App {
   private pollTimers: NodeJS.Timeout[] = [];
   private footerMsgTimer: NodeJS.Timeout | null = null;
   private exitResolve: (() => void) | null = null;
+  private shuttingDown = false;
   private pollingContainers = false;
   private pollingResources = false;
   private pollingStats = false;
@@ -377,6 +378,10 @@ export class App {
     await this.pollContainers();
     await this.pollResources();
 
+    // SIGTERM/SIGHUP during the initial polls: shutdown() ran before exitResolve
+    // existed, so don't start polling or wait on a promise nothing will resolve.
+    if (this.shuttingDown) return;
+
     this.pollTimers.push(
       setInterval(() => {
         void this.pollContainers();
@@ -538,6 +543,7 @@ export class App {
   }
 
   private shutdown(): void {
+    this.shuttingDown = true;
     this.stopPolling();
     if (this.footerMsgTimer) {
       clearTimeout(this.footerMsgTimer);
