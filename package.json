@@ -39,6 +39,7 @@
     "prebuild": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "tsc && tsc-alias",
     "dev": "ts-node -r tsconfig-paths/register src/cli.ts",
+    "dev:watch": "TS_NODE_TRANSPILE_ONLY=1 node --watch-path=src -r ts-node/register -r tsconfig-paths/register src/cli.ts",
     "start": "node dist/cli.js",
     "test": "vitest run",
     "test:watch": "vitest",
