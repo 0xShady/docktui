@@ -7,6 +7,16 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- **Compose verbs on a stack** — in the Stacks view, on a stack row: `u` runs
+  `docker compose up -d`, `d` `down` (confirm), `r` `restart`, `p` `pull`
+  (skipping services that are built locally), `B` `up --build -d`. The command
+  uses the project, directory and compose files from the containers' Compose
+  labels and needs the `docker` CLI. A stack taken down stays in the tree as
+  `down` for the session, so `u` brings it back
+  ([#15](https://github.com/0xShady/docktui/issues/15)).
+
 ### Fixed
 
 - The Stacks filter (`/`) now applies: it used to be cleared again right after
