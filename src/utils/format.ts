@@ -21,6 +21,12 @@ export function humanSizeMB(mb: number): string {
   return `${Math.round(mb)} MiB`;
 }
 
+export function compactSizeMB(mb: number): string {
+  if (mb < 1024) return `${Math.round(mb)}M`;
+  const gb = mb / 1024;
+  return `${gb < 10 ? gb.toFixed(1) : Math.round(gb)}G`;
+}
+
 export function relativeTime(date: Date): string {
   return dayjs(date).fromNow();
 }

@@ -19,6 +19,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   name (the stable identifier a container stores; a stopped container's endpoint
   ID can go stale after a daemon restart), so the count agrees with the
   Containers view.
+- **Memory display toggle** — press `m` to switch the MEM column in the Stacks
+  and Containers views between a percentage (`31.4%`) and used / limit
+  (`1.2G/16G`) ([#2](https://github.com/0xShady/docktui/issues/2)).
 
 ### Changed
 

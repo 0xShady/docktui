@@ -8,7 +8,7 @@ import {
   stopContainer,
 } from '@docker/containers';
 import type { ContainerInfo, ContainerStats } from '@models/docker';
-import { isActive } from '@utils/status';
+import { isActive, type MemDisplay } from '@utils/status';
 import { openExternalShell } from '@utils/external-terminal';
 import { ContainerList } from '@ui/containers/container-list';
 import type { RowStats } from '@ui/containers/container-list';
@@ -264,13 +264,18 @@ export class ContainersTab {
     if (this.confirmDialog.isVisible()) this.confirmDialog.hide();
   }
 
+  setMemDisplay(display: MemDisplay): void {
+    this.containerList.setMemDisplay(display);
+    this.refreshListStats();
+  }
+
   refreshListStats(): void {
     const cursorPos = this.containerList.getSelectedIndex();
 
     const listStats = new Map<string, RowStats>();
     for (const c of this.containers) {
       const s = this.statsCache.get(c.id);
-      if (s) listStats.set(c.id, { cpuPercent: s.cpuPercent, memPercent: s.memPercent });
+      if (s) listStats.set(c.id, s);
     }
     this.containerList.setData(this.containers, listStats);
 
@@ -291,7 +296,7 @@ export class ContainersTab {
     const listStats = new Map<string, RowStats>();
     for (const c of containers) {
       const s = this.statsCache.get(c.id);
-      if (s) listStats.set(c.id, { cpuPercent: s.cpuPercent, memPercent: s.memPercent });
+      if (s) listStats.set(c.id, s);
     }
 
     const targetIdx = this.selectedIndex;

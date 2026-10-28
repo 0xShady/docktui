@@ -10,7 +10,7 @@ import {
 import type { ContainerInfo, ContainerStats } from '@models/docker';
 import { C } from '@theme';
 import { groupIntoStacks, type Stack } from '@utils/stacks';
-import { isActive } from '@utils/status';
+import { isActive, type MemDisplay } from '@utils/status';
 import { openExternalShell } from '@utils/external-terminal';
 import { ContainerDetail } from '@ui/containers/container-detail';
 import { ConfirmDialog } from '@ui/containers/confirm-dialog';
@@ -251,6 +251,10 @@ export class StacksTab {
 
   refreshStats(): void {
     this.tree.setData(this.stacks, this.statsCache);
+  }
+
+  setMemDisplay(display: MemDisplay): void {
+    this.tree.setMemDisplay(display);
   }
 
   redraw(): void {

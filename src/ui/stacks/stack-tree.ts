@@ -2,7 +2,7 @@ import blessed from 'neo-blessed';
 import type { ContainerInfo, ContainerStats } from '@models/docker';
 import { t } from '@theme';
 import { padEnd, truncate } from '@utils/format';
-import { formatCpuCell, formatMemCell, isActive, statusDot } from '@utils/status';
+import { formatCpuCell, formatMemCell, isActive, statusDot, type MemDisplay } from '@utils/status';
 import type { Stack } from '@utils/stacks';
 import {
   createCenteredMessage,
@@ -26,11 +26,11 @@ export interface ColumnSpec {
   showPorts: boolean;
 }
 
-export function computeColumns(width: number): ColumnSpec {
+export function computeColumns(width: number, memDisplay: MemDisplay = 'percent'): ColumnSpec {
   const indentW = 3;
   const statusW = 16;
   const cpuW = 8;
-  const memW = 8;
+  const memW = memDisplay === 'absolute' ? 11 : 8;
   const portsW = 22;
 
   const showPorts = width >= 90;
@@ -87,6 +87,7 @@ export class StackTree {
 
   private stacks: Stack[] = [];
   private statsCache = new Map<string, ContainerStats>();
+  private memDisplay: MemDisplay = 'percent';
   private rows: Row[] = [];
 
   private expanded = new Set<string>();
@@ -215,6 +216,11 @@ export class StackTree {
   }
 
   /** Re-render the current dataset (call after terminal resize). */
+  setMemDisplay(display: MemDisplay): void {
+    this.memDisplay = display;
+    this.redraw();
+  }
+
   redraw(): void {
     this.rebuild({ preserveSelection: true });
   }
@@ -226,7 +232,7 @@ export class StackTree {
     this.rows = this.flatten();
 
     const width = Math.max(20, Number(this.list.width) - 2);
-    const cols = computeColumns(width);
+    const cols = computeColumns(width, this.memDisplay);
 
     this.renderHeader(cols);
 
@@ -343,10 +349,11 @@ export class StackTree {
     const status = padEnd(this.colorStatus(c, shortStatus(c)), cols.statusW);
 
     const cpuVal = this.statsCache.get(c.id)?.cpuPercent;
-    const memVal = this.statsCache.get(c.id)?.memPercent;
 
     const cpuCol = cols.showCpu ? padEnd(formatCpuCell(c, cpuVal), cols.cpuW) : '';
-    const memCol = cols.showMem ? padEnd(formatMemCell(c, memVal), cols.memW) : '';
+    const memCol = cols.showMem
+      ? padEnd(formatMemCell(c, this.statsCache.get(c.id), this.memDisplay), cols.memW)
+      : '';
 
     let portsCol = '';
     if (cols.showPorts) {
