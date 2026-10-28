@@ -58,3 +58,23 @@ export function padEnd(s: string, visualLen: number): string {
   if (pad <= 0) return s;
   return s + ' '.repeat(pad);
 }
+
+export function wrapText(text: string, width: number): string[] {
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    let rest = word;
+    if (line && line.length + 1 + rest.length <= width) {
+      line += ' ' + rest;
+      continue;
+    }
+    if (line) lines.push(line);
+    while (rest.length > width) {
+      lines.push(rest.slice(0, width));
+      rest = rest.slice(width);
+    }
+    line = rest;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
