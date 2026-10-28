@@ -1,4 +1,5 @@
 import type { ContainerInfo } from '@models/docker';
+import { composeProjectOf, type ComposeProject } from '@utils/compose';
 
 export const NO_STACK = '(no stack)';
 const COMPOSE_PROJECT_LABEL = 'com.docker.compose.project';
@@ -16,6 +17,7 @@ export interface Stack {
   services: ContainerInfo[];
   counts: StackCounts;
   isLive: boolean;
+  compose: ComposeProject | null;
 }
 
 export type ServiceClass = 'running' | 'errored' | 'stopped';
@@ -51,7 +53,11 @@ function compareServices(a: ContainerInfo, b: ContainerInfo): number {
   return a.name.localeCompare(b.name);
 }
 
-export function groupIntoStacks(containers: ContainerInfo[]): Stack[] {
+export function isDown(stack: Stack): boolean {
+  return stack.services.length === 0;
+}
+
+export function groupIntoStacks(containers: ContainerInfo[], knownProjects: ComposeProject[] = []): Stack[] {
   const grouped = new Map<string, { isCompose: boolean; services: ContainerInfo[] }>();
 
   for (const c of containers) {
@@ -75,6 +81,19 @@ export function groupIntoStacks(containers: ContainerInfo[]): Stack[] {
       services: [...services].sort(compareServices),
       counts,
       isLive: counts.running > 0,
+      compose: composeProjectOf(services),
+    });
+  }
+
+  for (const project of knownProjects) {
+    if (grouped.has(project.name)) continue;
+    stacks.push({
+      id: project.name,
+      isCompose: true,
+      services: [],
+      counts: { running: 0, errored: 0, stopped: 0 },
+      isLive: false,
+      compose: project,
     });
   }
 

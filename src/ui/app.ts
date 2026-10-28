@@ -5,7 +5,7 @@ import { listImages } from '@docker/images';
 import { listVolumes } from '@docker/volumes';
 import { listNetworks } from '@docker/networks';
 import type { ContainerInfo } from '@models/docker';
-import { groupIntoStacks, type Stack } from '@utils/stacks';
+import type { Stack } from '@utils/stacks';
 import { isActive, type MemDisplay } from '@utils/status';
 import { TopBar } from '@ui/top-bar';
 import { Footer } from '@ui/footer';
@@ -111,7 +111,8 @@ export class App {
       this.render();
     });
 
-    this.stacksTab.on('error', (msg) => this.setFooterMessage(msg, 'red'));
+    this.stacksTab.on('error', (msg) => this.setFooterMessage(msg, 'red', 6000));
+    this.stacksTab.on('message', (msg, color, duration) => this.setFooterMessage(msg, color, duration));
     this.stacksTab.on('stack-update', (stacks) => {
       this.stacks = stacks;
       this.rail.setStacks(stacks);
@@ -414,11 +415,8 @@ export class App {
     try {
       const containers = await listContainers();
       this.containers = containers;
-      this.stacks = groupIntoStacks(containers);
-      this.stacksTab.setData(containers, this.stacks);
+      this.stacksTab.setData(containers);
       this.containersTab.setData(containers);
-      this.rail.setStacks(this.stacks);
-      this.refreshTopBarCounters();
       this.refreshRailCounts();
       this.footer.noteRefresh();
       this.render();

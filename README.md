@@ -36,7 +36,7 @@ Releases are published to npm from GitHub Actions with [provenance](https://docs
 
 ## Features
 
-- **Compose-aware Stacks view** — containers grouped by project with running / errored / stopped counts, collapsible per stack.
+- **Compose-aware Stacks view** — containers grouped by project with running / errored / stopped counts, collapsible per stack; `u` / `d` / `r` / `p` / `B` run `docker compose up` / `down` / `restart` / `pull` / `up --build` on the selected stack.
 - **Containers / Images / Volumes** — live CPU and memory stats (memory as a percentage or used / limit, toggled with `m`), start / stop / restart / kill / remove with confirm dialogs.
 - **Networks** — list Docker networks with driver, scope, attached-container count, creation time, and in-use status; remove unused networks (built-in networks and any with attached containers are protected).
 - **Detail panel** — full metadata, mounts, environment, live CPU/MEM bars.
@@ -89,12 +89,16 @@ Requires the `docker` CLI to be on your `PATH`. docktui launches your platform's
 | `↑ ↓` / `j k` | Navigate tree |
 | `→` / `←` | Expand / collapse stack |
 | `Enter` | On a stack: toggle expand. On a service: open detail panel |
+| `u` / `d` | On a stack: `docker compose up -d` / `down` (confirm) |
+| `r` / `p` / `B` | On a stack: `docker compose restart` / `pull` / `up --build -d` |
 | `/` | Open filter (`Esc` to clear) |
 | `l` | Open log viewer |
 | `x` | Shell into selected running container |
-| `s` / `r` / `k` | Stop / restart / kill running container (confirm) |
-| `S` | Start stopped container |
-| `d` | Remove stopped container (confirm) |
+| `s` / `r` / `k` | On a service: stop / restart / kill running container (confirm) |
+| `S` | On a service: start stopped container |
+| `d` | On a service: remove stopped container (confirm) |
+
+Compose verbs run the `docker` CLI against the project's directory and compose files (read from the containers' Compose labels), so the files must be on this machine. A stack you take down stays in the tree, marked `down`, so `u` brings it back.
 
 ### Containers
 

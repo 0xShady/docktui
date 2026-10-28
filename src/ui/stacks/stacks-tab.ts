@@ -7,9 +7,11 @@ import {
   startContainer,
   stopContainer,
 } from '@docker/containers';
+import { runCompose } from '@docker/compose';
 import type { ContainerInfo, ContainerStats } from '@models/docker';
 import { C } from '@theme';
-import { groupIntoStacks, type Stack } from '@utils/stacks';
+import { COMPOSE_VERB_LABEL, type ComposeProject, type ComposeVerb } from '@utils/compose';
+import { groupIntoStacks, isDown, type Stack } from '@utils/stacks';
 import { isActive, type MemDisplay } from '@utils/status';
 import { openExternalShell } from '@utils/external-terminal';
 import { ContainerDetail } from '@ui/containers/container-detail';
@@ -19,6 +21,7 @@ import { StackTree, type StackTreeSelection } from '@ui/stacks/stack-tree';
 import type { Dims } from '@ui/widgets';
 
 type ErrorHandler = (message: string) => void;
+type MessageHandler = (message: string, color: 'green' | 'normal', duration: number) => void;
 type NavigateHandler = (sel: StackTreeSelection) => void;
 type StackUpdateHandler = (stacks: Stack[]) => void;
 type DetailOpenHandler = () => void;
@@ -40,8 +43,11 @@ export class StacksTab {
   private statsCache = new Map<string, ContainerStats>();
   private active = false;
   private filterOpen = false;
+  private composeRunning = new Set<string>();
+  private knownProjects = new Map<string, ComposeProject>();
 
   private errorHandlers: ErrorHandler[] = [];
+  private messageHandlers: MessageHandler[] = [];
   private navigateHandlers: NavigateHandler[] = [];
   private stackUpdateHandlers: StackUpdateHandler[] = [];
   private detailOpenHandlers: DetailOpenHandler[] = [];
@@ -110,15 +116,24 @@ export class StacksTab {
   }
 
   on(event: 'error', handler: ErrorHandler): void;
+  on(event: 'message', handler: MessageHandler): void;
   on(event: 'navigate', handler: NavigateHandler): void;
   on(event: 'stack-update', handler: StackUpdateHandler): void;
   on(event: 'detail-open', handler: DetailOpenHandler): void;
   on(event: 'log-open', handler: LogOpenHandler): void;
   on(event: 'log-follow-change', handler: LogFollowHandler): void;
   on(
-    event: 'error' | 'navigate' | 'stack-update' | 'detail-open' | 'log-open' | 'log-follow-change',
+    event:
+      | 'error'
+      | 'message'
+      | 'navigate'
+      | 'stack-update'
+      | 'detail-open'
+      | 'log-open'
+      | 'log-follow-change',
     handler:
       | ErrorHandler
+      | MessageHandler
       | NavigateHandler
       | StackUpdateHandler
       | DetailOpenHandler
@@ -126,6 +141,7 @@ export class StacksTab {
       | LogFollowHandler,
   ): void {
     if (event === 'error') this.errorHandlers.push(handler as ErrorHandler);
+    else if (event === 'message') this.messageHandlers.push(handler as MessageHandler);
     else if (event === 'navigate') this.navigateHandlers.push(handler as NavigateHandler);
     else if (event === 'stack-update') this.stackUpdateHandlers.push(handler as StackUpdateHandler);
     else if (event === 'detail-open') this.detailOpenHandlers.push(handler as DetailOpenHandler);
@@ -149,6 +165,9 @@ export class StacksTab {
     this.screen.key(['d'], this.handleD);
     this.screen.key(['x'], this.handleX);
     this.screen.key(['/'], this.handleSlash);
+    this.screen.key(['u'], this.handleU);
+    this.screen.key(['p'], this.handleP);
+    this.screen.key(['S-b'], this.handleShiftB);
 
     this.emitNavigate();
   }
@@ -172,6 +191,9 @@ export class StacksTab {
     this.screen.removeKey('d', this.handleD);
     this.screen.removeKey('x', this.handleX);
     this.screen.removeKey('/', this.handleSlash);
+    this.screen.removeKey('u', this.handleU);
+    this.screen.removeKey('p', this.handleP);
+    this.screen.removeKey('S-b', this.handleShiftB);
 
     this.navigateHandlers.forEach((h) => h(null));
   }
@@ -220,9 +242,12 @@ export class StacksTab {
     if (this.confirmDialog.isVisible()) this.confirmDialog.hide();
   }
 
-  setData(containers: ContainerInfo[], stacks?: Stack[]): void {
+  setData(containers: ContainerInfo[]): void {
     this.containers = containers;
-    this.stacks = stacks ?? groupIntoStacks(containers);
+    this.stacks = groupIntoStacks(containers, [...this.knownProjects.values()]);
+    for (const s of this.stacks) {
+      if (s.compose) this.knownProjects.set(s.compose.name, s.compose);
+    }
     this.tree.setData(this.stacks, this.statsCache);
 
     if (this.containerDetail.isVisible()) {
@@ -358,6 +383,10 @@ export class StacksTab {
 
   private readonly handleR = () => {
     if (!this.active || this.isModalOpen()) return;
+    if (this.getSelectedStack()) {
+      this.runStackVerb('restart');
+      return;
+    }
     const c = this.getActionTarget();
     if (!c || !isActive(c.status)) return;
     this.confirmAndRun('Restart container?', `${c.name} will be restarted.`, false, () =>
@@ -398,12 +427,93 @@ export class StacksTab {
 
   private readonly handleD = () => {
     if (!this.active || this.isModalOpen()) return;
+    if (this.getSelectedStack()) {
+      this.runStackVerb('down');
+      return;
+    }
     const c = this.getActionTarget();
     if (!c || isActive(c.status)) return;
     this.confirmAndRun('Remove container?', `${c.name} will be permanently removed.`, true, () =>
       removeContainer(c.id),
     );
   };
+
+  private readonly handleU = () => {
+    if (!this.active || this.isModalOpen()) return;
+    this.runStackVerb('up');
+  };
+
+  private readonly handleP = () => {
+    if (!this.active || this.isModalOpen()) return;
+    this.runStackVerb('pull');
+  };
+
+  private readonly handleShiftB = () => {
+    if (!this.active || this.isModalOpen()) return;
+    this.runStackVerb('build');
+  };
+
+  private getSelectedStack(): Stack | null {
+    if (this.containerDetail.isVisible()) return null;
+    const sel = this.tree.getSelected();
+    return sel?.kind === 'stack' ? sel.stack : null;
+  }
+
+  private runStackVerb(verb: ComposeVerb): void {
+    const stack = this.getSelectedStack();
+    if (!stack) return;
+    const project = stack.compose;
+    if (!project) {
+      this.emitError(
+        `${stack.id}: its containers carry no Compose labels, so docktui can't run compose for it`,
+      );
+      return;
+    }
+    if (isDown(stack) && (verb === 'down' || verb === 'restart')) {
+      this.emitError(`${project.name} is already down`);
+      return;
+    }
+    if (this.composeRunning.has(project.name)) {
+      this.emitError(`docker compose is already running for ${project.name}`);
+      return;
+    }
+
+    const label = COMPOSE_VERB_LABEL[verb];
+    const run = () => {
+      this.composeRunning.add(project.name);
+      this.emitMessage(`docker compose ${label} · ${project.name}…`, 'normal', 10 * 60 * 1000);
+      void runCompose(project, verb)
+        .then(() => {
+          this.emitMessage(`docker compose ${label} · ${project.name}: done`, 'green', 3000);
+          return this.refresh();
+        })
+        .catch((err: unknown) => this.emitError(err))
+        .finally(() => {
+          this.composeRunning.delete(project.name);
+          this.tree.focus();
+          this.screen.render();
+        });
+    };
+
+    if (verb !== 'down') {
+      run();
+      return;
+    }
+    this.confirmDialog.show({
+      title: 'Compose down?',
+      message: `docker compose down stops and removes the containers and networks of ${project.name}. Volumes are kept.`,
+      danger: true,
+      onConfirm: run,
+      onCancel: () => {
+        this.tree.focus();
+        this.screen.render();
+      },
+    });
+  }
+
+  private emitMessage(message: string, color: 'green' | 'normal', duration: number): void {
+    this.messageHandlers.forEach((h) => h(message, color, duration));
+  }
 
   /** Container targeted by tree/detail actions (detail takes precedence when open). */
   private getActionTarget(): ContainerInfo | null {
