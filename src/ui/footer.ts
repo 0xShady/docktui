@@ -36,8 +36,12 @@ const HINTS: Record<FooterContext, Hint[]> = {
   ],
   'stacks-tree-stack': [
     { key: '↑↓', verb: 'nav' },
-    { key: '→←', verb: 'expand' },
     { key: '↵', verb: 'toggle' },
+    { key: 'u', verb: 'up' },
+    { key: 'd', verb: 'down' },
+    { key: 'r', verb: 'restart' },
+    { key: 'p', verb: 'pull' },
+    { key: 'B', verb: 'build' },
     { key: '/', verb: 'filter' },
     { key: 'h', verb: 'help' },
     { key: 'q', verb: 'quit' },

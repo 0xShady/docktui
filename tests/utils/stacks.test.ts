@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { ContainerInfo, ContainerStatus } from '@models/docker';
-import { NO_STACK, classifyContainer, groupIntoStacks } from '@utils/stacks';
+import { NO_STACK, classifyContainer, groupIntoStacks, isDown } from '@utils/stacks';
 
 function container(overrides: Partial<ContainerInfo> = {}): ContainerInfo {
   return {
@@ -167,5 +167,46 @@ describe('groupIntoStacks', () => {
     expect(stacks).toHaveLength(1);
     expect(stacks[0].isCompose).toBe(true);
     expect(stacks[0].services.map((s) => s.name)).toEqual(['a', 'b']);
+  });
+});
+
+describe('groupIntoStacks with known Compose projects', () => {
+  const acme = { name: 'acme', workingDir: '/home/me/acme', configFiles: ['/home/me/acme/compose.yml'] };
+  const labels = {
+    'com.docker.compose.project': 'acme',
+    'com.docker.compose.project.working_dir': '/home/me/acme',
+    'com.docker.compose.project.config_files': '/home/me/acme/compose.yml',
+  };
+
+  it('attaches the Compose project read from the labels', () => {
+    const [stack] = groupIntoStacks([container({ labels })]);
+    expect(stack.compose).toEqual(acme);
+  });
+
+  it('keeps a known project with no containers left as a down stack', () => {
+    const stacks = groupIntoStacks([], [acme]);
+    expect(stacks).toHaveLength(1);
+    expect(stacks[0]).toMatchObject({
+      id: 'acme',
+      isCompose: true,
+      services: [],
+      isLive: false,
+      compose: acme,
+    });
+    expect(isDown(stacks[0])).toBe(true);
+  });
+
+  it('does not duplicate a known project that still has containers', () => {
+    const stacks = groupIntoStacks([container({ labels })], [acme]);
+    expect(stacks.map((s) => s.id)).toEqual(['acme']);
+    expect(isDown(stacks[0])).toBe(false);
+  });
+
+  it('sorts down stacks after the ones with containers, before (no stack)', () => {
+    const stacks = groupIntoStacks(
+      [container({ name: 'loose' }), container({ labels })],
+      [{ ...acme, name: 'gone' }],
+    );
+    expect(stacks.map((s) => s.id)).toEqual(['acme', 'gone', NO_STACK]);
   });
 });

@@ -322,7 +322,11 @@ export class StackTree {
 
     const nameCol = padEnd(`${glyph} ${nameRender}  ${pills.join(' ')}`, cols.nameW + cols.imageW + 1);
 
-    const stateLabel = row.stack.isLive ? t.aqua('live') : t.faint('—');
+    const stateLabel = row.stack.isLive
+      ? t.aqua('live')
+      : row.stack.services.length === 0
+        ? t.faint('down')
+        : t.faint('—');
     const status = padEnd(stateLabel, cols.statusW);
 
     const cpu = cols.showCpu ? padEnd('', cols.cpuW) : '';
