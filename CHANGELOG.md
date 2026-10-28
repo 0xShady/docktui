@@ -7,6 +7,13 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- Confirm dialogs always show their `[y]` / `[n]` keys: a long message (a long
+  container, image, volume or network name) is wrapped inside the dialog, which
+  grows to fit, instead of pushing the keys out of view
+  ([#21](https://github.com/0xShady/docktui/issues/21)).
+
 ### Added
 
 - **Compose verbs on a stack** — in the Stacks view, on a stack row: `u` runs

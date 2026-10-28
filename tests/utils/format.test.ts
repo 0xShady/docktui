@@ -9,6 +9,7 @@ import {
   relativeTime,
   stripTags,
   visualLength,
+  wrapText,
 } from '@utils/format';
 
 describe('humanUptime', () => {
@@ -156,5 +157,35 @@ describe('stripTags / visualLength', () => {
   it('measures the visible length after stripping tags', () => {
     expect(visualLength('{#fff-fg}abc{/}')).toBe(3);
     expect(visualLength('plain')).toBe(5);
+  });
+});
+
+describe('wrapText', () => {
+  it('keeps a short text on one line', () => {
+    expect(wrapText('web will be stopped.', 46)).toEqual(['web will be stopped.']);
+  });
+
+  it('breaks between words at the width', () => {
+    expect(wrapText('aaa bbb ccc ddd', 7)).toEqual(['aaa bbb', 'ccc ddd']);
+  });
+
+  it('never returns a line longer than the width', () => {
+    const msg =
+      'docker compose down stops and removes the containers and networks of general. Volumes are kept.';
+    const lines = wrapText(msg, 46);
+    expect(lines.every((l) => l.length <= 46)).toBe(true);
+    expect(lines.join(' ')).toBe(msg);
+  });
+
+  it('breaks a word longer than the width', () => {
+    const id = 'a'.repeat(64);
+    expect(wrapText(`${id} will be deleted.`, 46)).toEqual([
+      'a'.repeat(46),
+      `${'a'.repeat(18)} will be deleted.`,
+    ]);
+  });
+
+  it('returns no lines for an empty text', () => {
+    expect(wrapText('', 10)).toEqual([]);
   });
 });

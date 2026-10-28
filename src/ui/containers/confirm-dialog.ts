@@ -1,5 +1,9 @@
 import blessed from 'neo-blessed';
 import { C, t } from '@theme';
+import { wrapText } from '@utils/format';
+
+const WIDTH = 52;
+const TEXT_WIDTH = WIDTH - 6;
 
 interface ShowOptions {
   title: string;
@@ -34,7 +38,7 @@ export class ConfirmDialog {
 
     this.box = blessed.box({
       parent: screen,
-      width: 52,
+      width: WIDTH,
       height: 9,
       top: 'center',
       left: 'center',
@@ -67,12 +71,13 @@ export class ConfirmDialog {
       '',
       `  {bold}${danger ? t.red(options.title) : t.fg(options.title)}{/bold}`,
       '',
-      `  ${t.comment(options.message)}`,
+      ...wrapText(options.message, TEXT_WIDTH).map((line) => `  ${t.comment(line)}`),
       '',
       `  ${confirmBtn}    ${t.comment('[n] Cancel')}`,
       `  ${t.comment('y:confirm  n / Esc:cancel')}`,
     ];
 
+    this.box.height = Math.min(lines.length + 2, Number(this.screen.height));
     this.box.setContent(lines.join('\n'));
     this.visible = true;
     this.box.show();
