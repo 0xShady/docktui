@@ -1,6 +1,6 @@
 {
   "name": "docktui",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Docker Desktop for your terminal — a lightweight TUI for managing containers, images, and volumes",
   "bin": {
     "docktui": "./dist/cli.js"
