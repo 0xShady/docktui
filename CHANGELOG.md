@@ -7,6 +7,26 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- **Networks view** — a fifth view (key `5`, beneath Volumes) listing Docker
+  networks with driver, scope, short ID, attached-container count, creation
+  time, and an in-use / unused status badge. Press `d` to delete an unused
+  network (confirm dialog); built-in (`bridge` / `host` / `none`) networks and
+  any network with attached containers are guarded against deletion, consistent
+  with the Images and Volumes views (a network is in use whenever a container is
+  attached, running or stopped). Attached-container counts are keyed by network
+  name (the stable identifier a container stores; a stopped container's endpoint
+  ID can go stale after a daemon restart), so the count agrees with the
+  Containers view.
+
+### Changed
+
+- If listing images, volumes, or networks fails (e.g. a socket proxy that
+  blocks the networks endpoint), the error now shows inside that view instead
+  of re-appearing in the footer on every 10s refresh. The other views keep
+  updating normally.
+
 ## [0.1.1] - 2026-05-24
 
 ### Changed

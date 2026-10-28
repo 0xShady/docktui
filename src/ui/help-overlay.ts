@@ -74,7 +74,7 @@ export class HelpOverlay {
     return [
       `  {bold}${t.accent('docktui — key bindings')}{/bold}`,
       section('Navigation'),
-      row('1 … 4', 'Jump to Stacks / Containers / Images / Volumes'),
+      row('1 … 5', 'Jump to Stacks / Containers / Images / Volumes / Networks'),
       row('Tab / Shift+Tab', 'Cycle views'),
       row('h', 'Toggle this help'),
       row('q / Ctrl+C', 'Quit'),
@@ -115,7 +115,7 @@ export class HelpOverlay {
       section('Help overlay'),
       row('h', 'Toggle this help (open or close)'),
       row('Esc', 'Close this help'),
-      section('Images & Volumes'),
+      section('Images, Volumes & Networks'),
       row('↑ ↓ / j k', 'Navigate list'),
       row('d', 'Delete unused item'),
       section('Confirm dialog'),

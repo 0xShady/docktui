@@ -12,6 +12,7 @@ export type FooterContext =
   | 'containers-empty'
   | 'images'
   | 'volumes'
+  | 'networks'
   | 'detail'
   | 'log';
 
@@ -29,7 +30,7 @@ const HINTS: Record<FooterContext, Hint[]> = {
   global: [
     { key: '↑↓', verb: 'nav' },
     { key: '↵', verb: 'select' },
-    { key: '1-4', verb: 'view' },
+    { key: '1-5', verb: 'view' },
     { key: 'h', verb: 'help' },
     { key: 'q', verb: 'quit' },
   ],
@@ -81,7 +82,7 @@ const HINTS: Record<FooterContext, Hint[]> = {
   ],
   'containers-empty': [
     { key: '↑↓', verb: 'nav' },
-    { key: '1-4', verb: 'view' },
+    { key: '1-5', verb: 'view' },
     { key: 'h', verb: 'help' },
     { key: 'q', verb: 'quit' },
   ],
@@ -92,6 +93,12 @@ const HINTS: Record<FooterContext, Hint[]> = {
     { key: 'q', verb: 'quit' },
   ],
   volumes: [
+    { key: '↑↓', verb: 'nav' },
+    { key: 'd', verb: 'delete' },
+    { key: 'h', verb: 'help' },
+    { key: 'q', verb: 'quit' },
+  ],
+  networks: [
     { key: '↑↓', verb: 'nav' },
     { key: 'd', verb: 'delete' },
     { key: 'h', verb: 'help' },

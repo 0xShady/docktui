@@ -36,10 +36,11 @@ docktui
 
 - **Compose-aware Stacks view** — containers grouped by project with running / errored / stopped counts, collapsible per stack.
 - **Containers / Images / Volumes** — live CPU and memory stats, start / stop / restart / kill / remove with confirm dialogs.
+- **Networks** — list Docker networks with driver, scope, attached-container count, creation time, and in-use status; remove unused networks (built-in networks and any with attached containers are protected).
 - **Detail panel** — full metadata, mounts, environment, live CPU/MEM bars.
 - **Streaming log viewer** with follow mode, scrollback cap, and color-coded stdout/stderr.
 - **Filter** — press `/` from Stacks to filter by stack, service, or image name.
-- **Side rail navigation** — `1`–`4` or `Tab` cycles views; click a live stack to jump to it.
+- **Side rail navigation** — `1`–`5` or `Tab` cycles views; click a live stack to jump to it.
 - **Help overlay** — press `h` anywhere (except confirm dialogs / the stack filter) to toggle the key-binding reference.
 - **Shell into containers** — `x` opens an external terminal `exec`'d into the selected container (macOS Terminal, Windows Terminal, common Linux emulators).
 - **Honors `DOCKER_HOST`** — works with rootless Docker, podman, and remote daemons.
@@ -73,7 +74,7 @@ Requires the `docker` CLI to be on your `PATH`. docktui launches your platform's
 
 | Key | Action |
 |-----|--------|
-| `1` – `4` | Jump to Stacks / Containers / Images / Volumes |
+| `1` – `5` | Jump to Stacks / Containers / Images / Volumes / Networks |
 | `Tab` / `Shift+Tab` | Cycle views |
 | `h` | Toggle help overlay |
 | `q` / `Ctrl+C` | Quit |
@@ -116,12 +117,14 @@ Same container actions as the list/tree (`l`, `s`, `r`, `k`, `S`, `d`, `x`) plus
 | `↑` / `k` | Scroll up (disables follow) |
 | `Esc` | Close |
 
-### Images & Volumes
+### Images, Volumes & Networks
 
 | Key | Action |
 |-----|--------|
 | `↑ ↓` / `j k` | Navigate list |
 | `d` | Delete unused item (confirm) |
+
+Networks additionally protect the built-in `bridge` / `host` / `none` networks and any network with attached containers — `d` on those shows a message instead of a confirm dialog. In-use detection is consistent with Images and Volumes: a network counts as in use whenever a container is attached, running or stopped.
 
 ### Confirm dialog
 

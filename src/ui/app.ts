@@ -3,6 +3,7 @@ import { getDockerSocketLabel, getDockerVersion } from '@docker/client';
 import { listContainers, fetchStats } from '@docker/containers';
 import { listImages } from '@docker/images';
 import { listVolumes } from '@docker/volumes';
+import { listNetworks } from '@docker/networks';
 import type { ContainerInfo } from '@models/docker';
 import { groupIntoStacks, type Stack } from '@utils/stacks';
 import { isActive } from '@utils/status';
@@ -16,8 +17,11 @@ import type { StackTreeSelection } from '@ui/stacks/stack-tree';
 import { ContainersTab } from '@ui/containers/containers-tab';
 import { ImagesTab } from '@ui/images/images-tab';
 import { VolumesTab } from '@ui/volumes/volumes-tab';
+import { NetworksTab } from '@ui/networks/networks-tab';
 
-const VIEW_ORDER: ViewId[] = ['stacks', 'containers', 'images', 'volumes'];
+const VIEW_ORDER: ViewId[] = ['stacks', 'containers', 'images', 'volumes', 'networks'];
+
+const msgOf = (err: unknown): string => (err instanceof Error ? err.message : String(err));
 
 export class App {
   private screen: blessed.Widgets.Screen;
@@ -30,6 +34,7 @@ export class App {
   private containersTab: ContainersTab;
   private imagesTab: ImagesTab;
   private volumesTab: VolumesTab;
+  private networksTab: NetworksTab;
 
   private activeView: ViewId = 'stacks';
   private overlayOpen = false;
@@ -38,13 +43,14 @@ export class App {
   private stacks: Stack[] = [];
   private imageCount = 0;
   private volumeCount = 0;
+  private networkCount = 0;
   private aggregateStats: { cpuPercent: number; memUsageMB: number } | null = null;
 
   private pollTimers: NodeJS.Timeout[] = [];
   private footerMsgTimer: NodeJS.Timeout | null = null;
   private exitResolve: (() => void) | null = null;
   private pollingContainers = false;
-  private pollingImagesVolumes = false;
+  private pollingResources = false;
   private pollingStats = false;
 
   constructor() {
@@ -72,6 +78,7 @@ export class App {
     this.containersTab = new ContainersTab(this.screen, tabDims);
     this.imagesTab = new ImagesTab(this.screen, tabDims);
     this.volumesTab = new VolumesTab(this.screen, tabDims);
+    this.networksTab = new NetworksTab(this.screen, tabDims);
 
     this.wireEvents();
     this.setupKeys();
@@ -172,6 +179,14 @@ export class App {
         this.render();
       }
     });
+
+    this.networksTab.on('error', (msg) => this.setFooterMessage(msg, 'red'));
+    this.networksTab.on('navigate', () => {
+      if (this.activeView === 'networks') {
+        this.footer.setContext('networks');
+        this.render();
+      }
+    });
   }
 
   private contextForStacks(sel: StackTreeSelection): FooterContext {
@@ -234,6 +249,7 @@ export class App {
       this.containersTab.isOverlayOpen() ||
       this.imagesTab.isConfirmOpen() ||
       this.volumesTab.isConfirmOpen() ||
+      this.networksTab.isConfirmOpen() ||
       this.isFilterOpen()
     );
   }
@@ -248,6 +264,7 @@ export class App {
       this.containersTab.isConfirmOpen() ||
       this.imagesTab.isConfirmOpen() ||
       this.volumesTab.isConfirmOpen() ||
+      this.networksTab.isConfirmOpen() ||
       this.isFilterOpen()
     );
   }
@@ -278,6 +295,9 @@ export class App {
       case 'volumes':
         this.volumesTab.hide();
         break;
+      case 'networks':
+        this.networksTab.hide();
+        break;
     }
   }
 
@@ -295,6 +315,9 @@ export class App {
       case 'volumes':
         this.volumesTab.show();
         break;
+      case 'networks':
+        this.networksTab.show();
+        break;
     }
   }
 
@@ -308,6 +331,8 @@ export class App {
         return 'images';
       case 'volumes':
         return 'volumes';
+      case 'networks':
+        return 'networks';
     }
   }
 
@@ -335,7 +360,7 @@ export class App {
     this.topBar.render();
 
     this.rail.setActiveView('stacks');
-    this.rail.setCounts({ stacks: 0, containers: 0, images: 0, volumes: 0 });
+    this.rail.setCounts({ stacks: 0, containers: 0, images: 0, volumes: 0, networks: 0 });
 
     this.footer.setContext('global');
     this.footer.startTicker(() => this.render());
@@ -344,19 +369,20 @@ export class App {
     this.containersTab.showLoading();
     this.imagesTab.showLoading();
     this.volumesTab.showLoading();
+    this.networksTab.showLoading();
 
     this.showTab('stacks');
     this.render();
 
     await this.pollContainers();
-    await this.pollImagesAndVolumes();
+    await this.pollResources();
 
     this.pollTimers.push(
       setInterval(() => {
         void this.pollContainers();
       }, 5000),
       setInterval(() => {
-        void this.pollImagesAndVolumes();
+        void this.pollResources();
       }, 10000),
       setInterval(() => {
         void this.pollStats();
@@ -389,22 +415,50 @@ export class App {
     }
   }
 
-  private async pollImagesAndVolumes(): Promise<void> {
-    if (this.pollingImagesVolumes) return;
-    this.pollingImagesVolumes = true;
+  private async pollResources(): Promise<void> {
+    if (this.pollingResources) return;
+    this.pollingResources = true;
     try {
-      const [images, volumes] = await Promise.all([listImages(), listVolumes()]);
-      this.imageCount = images.length;
-      this.volumeCount = volumes.length;
-      this.imagesTab.setData(images);
-      this.volumesTab.setData(volumes);
+      // Settle each resource independently so one listing's failure doesn't blank the others.
+      // Failures render inside the affected tab, not the footer: this poll repeats every 10s,
+      // and the footer is reserved for one-off messages.
+      const [imagesR, volumesR, networksR] = await Promise.allSettled([
+        listImages(),
+        listVolumes(),
+        listNetworks(),
+      ]);
+
+      if (imagesR.status === 'fulfilled') {
+        this.imageCount = imagesR.value.length;
+        this.imagesTab.setData(imagesR.value);
+      } else {
+        this.imageCount = 0;
+        this.imagesTab.showLoadError(msgOf(imagesR.reason));
+      }
+
+      if (volumesR.status === 'fulfilled') {
+        this.volumeCount = volumesR.value.length;
+        this.volumesTab.setData(volumesR.value);
+      } else {
+        this.volumeCount = 0;
+        this.volumesTab.showLoadError(msgOf(volumesR.reason));
+      }
+
+      if (networksR.status === 'fulfilled') {
+        this.networkCount = networksR.value.length;
+        this.networksTab.setData(networksR.value);
+      } else {
+        this.networkCount = 0;
+        this.networksTab.showLoadError(msgOf(networksR.reason));
+      }
+
       this.refreshRailCounts();
       this.footer.noteRefresh();
       this.render();
     } catch (err) {
-      this.setFooterMessage(err instanceof Error ? err.message : String(err), 'red');
+      this.setFooterMessage(msgOf(err), 'red');
     } finally {
-      this.pollingImagesVolumes = false;
+      this.pollingResources = false;
     }
   }
 
@@ -462,6 +516,7 @@ export class App {
       containers: this.containers.length,
       images: this.imageCount,
       volumes: this.volumeCount,
+      networks: this.networkCount,
     });
   }
 
@@ -470,6 +525,7 @@ export class App {
     this.containersTab.setData(this.containers);
     this.imagesTab.redraw();
     this.volumesTab.redraw();
+    this.networksTab.redraw();
     this.topBar.render();
     this.footer.render();
     this.render();

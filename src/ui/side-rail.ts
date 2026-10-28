@@ -3,13 +3,14 @@ import { C, t } from '@theme';
 import type { Stack } from '@utils/stacks';
 import { padEnd, truncate, visualLength } from '@utils/format';
 
-export type ViewId = 'stacks' | 'containers' | 'images' | 'volumes';
+export type ViewId = 'stacks' | 'containers' | 'images' | 'volumes' | 'networks';
 
 export interface ViewCounts {
   stacks: number;
   containers: number;
   images: number;
   volumes: number;
+  networks: number;
 }
 
 interface ViewSpec {
@@ -24,6 +25,7 @@ const VIEWS: ViewSpec[] = [
   { id: 'containers', label: 'Containers', icon: '◧', key: '2' },
   { id: 'images', label: 'Images', icon: '◩', key: '3' },
   { id: 'volumes', label: 'Volumes', icon: '◪', key: '4' },
+  { id: 'networks', label: 'Networks', icon: '◫', key: '5' },
 ];
 
 export const RAIL_WIDTH = 28;
@@ -41,7 +43,7 @@ export class SideRail {
   readonly box: blessed.Widgets.BoxElement;
 
   private activeView: ViewId = 'stacks';
-  private counts: ViewCounts = { stacks: 0, containers: 0, images: 0, volumes: 0 };
+  private counts: ViewCounts = { stacks: 0, containers: 0, images: 0, volumes: 0, networks: 0 };
   private stacks: Stack[] = [];
   private clickable: ClickableLine[] = [];
 

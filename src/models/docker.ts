@@ -50,6 +50,17 @@ export interface VolumeInfo {
   inUse: boolean;
 }
 
+export interface NetworkInfo {
+  id: string;
+  name: string;
+  driver: string;
+  scope: string;
+  created: Date;
+  containerCount: number;
+  inUse: boolean;
+  builtin: boolean;
+}
+
 export interface ContainerStats {
   cpuPercent: number;
   memUsageMB: number;
