@@ -90,6 +90,16 @@ npm run build
 5. Open the PR. Describe **what** changed and **why** (the code shows the what; the why is what reviewers need).
 6. CI must be green before merge.
 
+## Releasing (maintainers)
+
+Merging to `main` never publishes. A release is a GitHub Release:
+
+1. In a PR: bump `version` in `package.json` (`npm version X.Y.Z --no-git-tag-version`) and move the `[Unreleased]` entries in `CHANGELOG.md` under the new version.
+2. After merging, on an up-to-date, clean `main`: `npm run release`. It publishes GitHub Release `vX.Y.Z` with notes from the merged PRs since the last release.
+3. The `Release` workflow checks the tag against `package.json`, runs lint, format, build and tests, then publishes to npm with provenance through npm trusted publishing (no token).
+
+`npm run release -- rc.1` publishes a pre-release (`vX.Y.Z-rc.1`) to npm under the `next` dist-tag (`npm i docktui@next`).
+
 ## Commit messages
 
 No strict convention enforced, but short imperative subjects help (`fix log-viewer race on close`, `add isConfirmOpen to ImagesTab`, `remove deprecated heartbeat scaffolding`). Reference issues with `Fixes #N` where applicable.
