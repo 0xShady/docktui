@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   humanUptime,
   humanSizeMB,
+  compactSizeMB,
   truncate,
   truncateMiddle,
   padEnd,
@@ -40,6 +41,23 @@ describe('humanUptime', () => {
 
   it('clamps negative durations to 0s', () => {
     expect(humanUptime(new Date(NOW + 5000))).toBe('0s');
+  });
+});
+
+describe('compactSizeMB', () => {
+  it('renders whole megabytes under 1 GiB', () => {
+    expect(compactSizeMB(512)).toBe('512M');
+    expect(compactSizeMB(123.6)).toBe('124M');
+  });
+
+  it('renders one decimal under 10 GiB', () => {
+    expect(compactSizeMB(1024)).toBe('1.0G');
+    expect(compactSizeMB(1.2 * 1024)).toBe('1.2G');
+  });
+
+  it('renders whole gigabytes from 10 GiB', () => {
+    expect(compactSizeMB(16 * 1024)).toBe('16G');
+    expect(compactSizeMB(31.6 * 1024)).toBe('32G');
   });
 });
 

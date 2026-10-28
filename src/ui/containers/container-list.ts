@@ -2,7 +2,15 @@ import blessed from 'neo-blessed';
 import type { ContainerInfo } from '@models/docker';
 import { t } from '@theme';
 import { padEnd, truncate } from '@utils/format';
-import { colorByStatus, formatCpuCell, formatMemCell, statusDot, statusLabel } from '@utils/status';
+import {
+  colorByStatus,
+  formatCpuCell,
+  formatMemCell,
+  statusDot,
+  statusLabel,
+  type MemDisplay,
+  type MemStats,
+} from '@utils/status';
 import {
   createCenteredMessage,
   createHeaderBar,
@@ -11,9 +19,8 @@ import {
   type Dims,
 } from '@ui/widgets';
 
-export interface RowStats {
+export interface RowStats extends MemStats {
   cpuPercent: number;
-  memPercent: number;
 }
 
 type ColWidths = [number, number, number, number, number, number, number];
@@ -28,6 +35,7 @@ export class ContainerList {
   private messageBox: blessed.Widgets.BoxElement;
 
   private containers: ContainerInfo[] = [];
+  private memDisplay: MemDisplay = 'percent';
   private selectHandlers: SelectHandler[] = [];
   private navigateHandlers: NavigateHandler[] = [];
 
@@ -70,6 +78,10 @@ export class ContainerList {
   showLoading(): void {
     this.messageBox.setContent(t.comment('  Loading...'));
     this.messageBox.show();
+  }
+
+  setMemDisplay(display: MemDisplay): void {
+    this.memDisplay = display;
   }
 
   setData(containers: ContainerInfo[], stats?: Map<string, RowStats>): void {
@@ -116,7 +128,7 @@ export class ContainerList {
     const c3 = Math.floor(inner * 0.22);
     const c4 = Math.floor(inner * 0.1);
     const c5 = Math.floor(inner * 0.08);
-    const c6 = Math.floor(inner * 0.08);
+    const c6 = Math.max(this.memDisplay === 'absolute' ? 11 : 0, Math.floor(inner * 0.08));
     const c7 = Math.max(1, inner - c1 - c2 - c3 - c4 - c5 - c6);
     return [c1, c2, c3, c4, c5, c6, c7];
   }
@@ -146,7 +158,7 @@ export class ContainerList {
     const col4 = padEnd(c.networks.length > 0 ? t.cyan(netRaw) : t.comment(netRaw), c4);
 
     const col5 = padEnd(formatCpuCell(c, stats?.cpuPercent), c5);
-    const col6 = padEnd(formatMemCell(c, stats?.memPercent), c6);
+    const col6 = padEnd(formatMemCell(c, stats, this.memDisplay), c6);
 
     const rawPort = c.ports.length > 0 ? truncate(c.ports[0], c7 - 1) : '';
     const col7 = rawPort ? t.pink(rawPort) : t.comment('—');

@@ -6,7 +6,7 @@ import { listVolumes } from '@docker/volumes';
 import { listNetworks } from '@docker/networks';
 import type { ContainerInfo } from '@models/docker';
 import { groupIntoStacks, type Stack } from '@utils/stacks';
-import { isActive } from '@utils/status';
+import { isActive, type MemDisplay } from '@utils/status';
 import { TopBar } from '@ui/top-bar';
 import { Footer } from '@ui/footer';
 import type { FooterContext } from '@ui/footer';
@@ -44,6 +44,7 @@ export class App {
   private imageCount = 0;
   private volumeCount = 0;
   private networkCount = 0;
+  private memDisplay: MemDisplay = 'percent';
   private aggregateStats: { cpuPercent: number; memUsageMB: number } | null = null;
 
   private pollTimers: NodeJS.Timeout[] = [];
@@ -233,6 +234,14 @@ export class App {
     }
 
     this.screen.key(['h'], this.toggleHelp);
+
+    this.screen.key(['m'], () => {
+      if (this.overlayOpen || this.isModalOpen()) return;
+      this.memDisplay = this.memDisplay === 'percent' ? 'absolute' : 'percent';
+      this.stacksTab.setMemDisplay(this.memDisplay);
+      this.containersTab.setMemDisplay(this.memDisplay);
+      this.render();
+    });
 
     this.screen.key(['q', 'C-c'], () => {
       if (this.overlayOpen || this.isModalOpen()) return;

@@ -1,8 +1,12 @@
 import { t } from '@theme';
-import type { ContainerInfo, ContainerStatus } from '@models/docker';
+import type { ContainerInfo, ContainerStats, ContainerStatus } from '@models/docker';
+import { compactSizeMB } from '@utils/format';
 
 type ColorFn = (s: string) => string;
 type StatusSubset = Pick<ContainerInfo, 'status' | 'exitCode'>;
+
+export type MemDisplay = 'percent' | 'absolute';
+export type MemStats = Pick<ContainerStats, 'memPercent' | 'memUsageMB' | 'memLimitMB'>;
 
 export const ACTIVE_STATUSES = new Set<ContainerStatus>(['running', 'paused', 'restarting']);
 
@@ -70,7 +74,11 @@ export function formatCpuCell(c: StatusSubset, cpu?: number): string {
   return cpuColor(cpu)(`${cpu.toFixed(1)}%`);
 }
 
-export function formatMemCell(c: StatusSubset, mem?: number): string {
+export function formatMemCell(c: StatusSubset, mem?: MemStats, display: MemDisplay = 'percent'): string {
   if (!isActive(c.status) || mem === undefined) return t.faint('—');
-  return memColor(mem)(`${mem.toFixed(1)}%`);
+  const text =
+    display === 'absolute'
+      ? `${compactSizeMB(mem.memUsageMB)}/${compactSizeMB(mem.memLimitMB)}`
+      : `${mem.memPercent.toFixed(1)}%`;
+  return memColor(mem.memPercent)(text);
 }

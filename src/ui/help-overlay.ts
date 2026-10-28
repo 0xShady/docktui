@@ -77,6 +77,7 @@ export class HelpOverlay {
       row('1 … 5', 'Jump to Stacks / Containers / Images / Volumes / Networks'),
       row('Tab / Shift+Tab', 'Cycle views'),
       row('h', 'Toggle this help'),
+      row('m', 'Memory column: percent / used of limit'),
       row('q / Ctrl+C', 'Quit'),
       section('Stacks view'),
       row('↑ ↓ / j k', 'Navigate the tree'),

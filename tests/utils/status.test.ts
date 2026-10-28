@@ -7,7 +7,9 @@ import {
   colorByStatus,
   cpuColor,
   memColor,
+  formatMemCell,
 } from '@utils/status';
+import { stripTags } from '@utils/format';
 import { t } from '@theme';
 import type { ContainerStatus } from '@models/docker';
 
@@ -108,5 +110,29 @@ describe('memColor', () => {
   it('returns red at or above 80', () => {
     expect(memColor(80)).toBe(t.red);
     expect(memColor(99.5)).toBe(t.red);
+  });
+});
+
+describe('formatMemCell', () => {
+  const running = { status: 'running' as ContainerStatus, exitCode: 0 };
+  const stats = { memPercent: 7.5, memUsageMB: 1.2 * 1024, memLimitMB: 16 * 1024 };
+
+  it('shows a percentage by default', () => {
+    expect(stripTags(formatMemCell(running, stats))).toBe('7.5%');
+  });
+
+  it('shows used of limit in absolute mode', () => {
+    expect(stripTags(formatMemCell(running, stats, 'absolute'))).toBe('1.2G/16G');
+  });
+
+  it('colors by percentage in both modes', () => {
+    const high = { ...stats, memPercent: 85 };
+    expect(formatMemCell(running, high, 'absolute')).toBe(t.red('1.2G/16G'));
+    expect(formatMemCell(running, high)).toBe(t.red('85.0%'));
+  });
+
+  it('shows a dash without stats or for a stopped container', () => {
+    expect(stripTags(formatMemCell(running, undefined, 'absolute'))).toBe('—');
+    expect(stripTags(formatMemCell({ status: 'exited', exitCode: 0 }, stats))).toBe('—');
   });
 });

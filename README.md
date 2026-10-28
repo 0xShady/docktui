@@ -77,6 +77,7 @@ Requires the `docker` CLI to be on your `PATH`. docktui launches your platform's
 | `1` – `5` | Jump to Stacks / Containers / Images / Volumes / Networks |
 | `Tab` / `Shift+Tab` | Cycle views |
 | `h` | Toggle help overlay |
+| `m` | Memory column: percent (`31.4%`) / used of limit (`1.2G/16G`) |
 | `q` / `Ctrl+C` | Quit |
 
 ### Stacks
