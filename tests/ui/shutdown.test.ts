@@ -44,7 +44,8 @@ describe.skipIf(process.platform === 'win32')('shutdown', () => {
         env: {
           ...process.env,
           DOCKER_HOST: `tcp://127.0.0.1:${port}`,
-          TERM: 'xterm',
+          TERM: 'xterm-256color',
+          COLORTERM: 'truecolor',
           TS_NODE_TRANSPILE_ONLY: '1',
         },
         stdio: 'pipe',

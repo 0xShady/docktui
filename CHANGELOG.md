@@ -27,6 +27,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   of re-appearing in the footer on every 10s refresh. The other views keep
   updating normally.
 
+### Fixed
+
+- Stopping docktui with `SIGTERM` or `SIGHUP` while it loads (before the first
+  container and resource lists arrive) no longer leaves the process running.
+
 ## [0.1.1] - 2026-05-24
 
 ### Changed
