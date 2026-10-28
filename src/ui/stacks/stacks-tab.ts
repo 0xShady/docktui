@@ -297,7 +297,7 @@ export class StacksTab {
     this.filterOpen = true;
     this.filterBox.setValue(this.tree.getFilter());
     this.filterBox.show();
-    this.filterBox.readInput();
+    this.filterBox.focus();
     this.screen.render();
   };
 

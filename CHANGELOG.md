@@ -7,6 +7,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- The Stacks filter (`/`) now applies: it used to be cleared again right after
+  Enter ([#17](https://github.com/0xShady/docktui/issues/17)).
+
 ## [0.2.0] - 2026-10-28
 
 ### Added
