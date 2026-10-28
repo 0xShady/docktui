@@ -21,6 +21,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - The Stacks filter (`/`) now applies: it used to be cleared again right after
   Enter ([#17](https://github.com/0xShady/docktui/issues/17)).
+- Confirm dialogs always show their `[y]` / `[n]` keys: a long message (a long
+  container, image, volume or network name) is wrapped inside the dialog, which
+  grows to fit, instead of pushing the keys out of view
+  ([#21](https://github.com/0xShady/docktui/issues/21)).
 
 ## [0.2.0] - 2026-10-28
 
