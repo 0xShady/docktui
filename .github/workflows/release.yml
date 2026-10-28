@@ -1,9 +1,8 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -15,21 +14,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
+
+      - run: npm install -g npm@latest
 
       - run: npm ci
 
       - name: Verify tag matches package.json version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION"
+          if [ "v$PKG_VERSION" != "${TAG%%-*}" ] && [ "v$PKG_VERSION" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match package.json version $PKG_VERSION"
             exit 1
           fi
 
@@ -38,6 +42,14 @@ jobs:
       - run: npm run build
       - run: npm test
 
-      - run: npm publish --provenance --access public
+      - name: Publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "$PRERELEASE" = "true" ]; then
+            npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+            npm publish --provenance --access public --tag next
+          else
+            npm publish --provenance --access public
+          fi
