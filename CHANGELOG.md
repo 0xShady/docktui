@@ -29,6 +29,9 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- The container list no longer fails on Docker 29 when a container has no
+  published ports (the API now returns `null` instead of an empty list)
+  ([#8](https://github.com/0xShady/docktui/issues/8)).
 - Stopping docktui with `SIGTERM` or `SIGHUP` while it loads (before the first
   container and resource lists arrive) no longer leaves the process running.
 

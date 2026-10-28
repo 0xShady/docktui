@@ -126,6 +126,11 @@ describe('toContainerInfo', () => {
     expect(info.ports).toEqual(['3000/tcp']);
   });
 
+  it('treats null Ports (Docker 29, no published ports) as no ports', () => {
+    const raw = rawContainer({ Ports: null as unknown as Dockerode.ContainerInfo['Ports'] });
+    expect(toContainerInfo(raw, null).ports).toEqual([]);
+  });
+
   it('extracts networks and first IP', () => {
     const info = toContainerInfo(
       rawContainer({

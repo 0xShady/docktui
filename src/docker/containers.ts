@@ -35,7 +35,7 @@ export function toContainerInfo(
     }
   }
 
-  const ports = raw.Ports.map((p) =>
+  const ports = (raw.Ports ?? []).map((p) =>
     p.PublicPort
       ? `${p.IP ? `${p.IP}:` : ''}${p.PublicPort}->${p.PrivatePort}/${p.Type}`
       : `${p.PrivatePort}/${p.Type}`,
