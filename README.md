@@ -5,7 +5,7 @@
 <h1 align="center">docktui</h1>
 
 <p align="center">
-  A lightweight terminal UI for Docker. Manage containers, images, and volumes from your terminal — Compose-aware, no mouse required.
+  A lightweight terminal UI for Docker. Manage containers, images, volumes, and networks from your terminal — Compose-aware, no mouse required.
 </p>
 
 <p align="center">
@@ -32,10 +32,12 @@ npm install -g docktui
 docktui
 ```
 
+Releases are published to npm from GitHub Actions with [provenance](https://docs.npmjs.com/generating-provenance-statements) (`npm audit signatures` verifies them).
+
 ## Features
 
 - **Compose-aware Stacks view** — containers grouped by project with running / errored / stopped counts, collapsible per stack.
-- **Containers / Images / Volumes** — live CPU and memory stats, start / stop / restart / kill / remove with confirm dialogs.
+- **Containers / Images / Volumes** — live CPU and memory stats (memory as a percentage or used / limit, toggled with `m`), start / stop / restart / kill / remove with confirm dialogs.
 - **Networks** — list Docker networks with driver, scope, attached-container count, creation time, and in-use status; remove unused networks (built-in networks and any with attached containers are protected).
 - **Detail panel** — full metadata, mounts, environment, live CPU/MEM bars.
 - **Streaming log viewer** with follow mode, scrollback cap, and color-coded stdout/stderr.
@@ -170,6 +172,7 @@ cd docktui
 npm install
 
 npm run dev            # run from source with ts-node
+npm run dev:watch      # same, restarting on changes in src/
 npm run build          # compile to dist/
 npm start              # run compiled output
 
@@ -179,7 +182,7 @@ npm run lint
 npm run format
 ```
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for the pre-PR checklist and [CHANGELOG.md](./CHANGELOG.md) for release history.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the pre-PR checklist and how releases work, and [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## License
 
