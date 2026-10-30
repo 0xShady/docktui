@@ -2,6 +2,7 @@ import { join } from 'path';
 import { parseArgs } from 'util';
 import { parse } from 'smol-toml';
 import type { MemDisplay } from '@utils/status';
+import { PRESET_NAMES, type PresetName } from '@theme';
 
 export const START_VIEWS = ['stacks', 'containers', 'images', 'volumes', 'networks'] as const;
 export type StartView = (typeof START_VIEWS)[number];
@@ -11,12 +12,14 @@ const REFRESH_KEYS = ['containers', 'resources', 'stats'] as const;
 type RefreshKey = (typeof REFRESH_KEYS)[number];
 
 export interface Config {
+  theme: PresetName;
   view: StartView;
   memory: MemDisplay;
   refresh: Record<RefreshKey, number>;
 }
 
 export const DEFAULT_CONFIG: Config = {
+  theme: 'default',
   view: 'stacks',
   memory: 'percent',
   refresh: { containers: 5, resources: 10, stats: 2 },
@@ -24,6 +27,7 @@ export const DEFAULT_CONFIG: Config = {
 
 export interface Flags {
   config?: string;
+  theme?: string;
   view?: string;
   memory?: string;
   help: boolean;
@@ -40,6 +44,7 @@ export const HELP_TEXT = `Usage: docktui [options]
 Options:
   -c, --config <path>   Config file (default: $XDG_CONFIG_HOME/docktui/config.toml,
                         or ~/.config/docktui/config.toml)
+      --theme <name>    Color theme: ${PRESET_NAMES.join(', ')}
       --view <name>     View to open: ${START_VIEWS.join(', ')}
       --memory <mode>   Memory column: ${MEMORY_MODES.join(', ')}
   -h, --help            Show this help
@@ -54,6 +59,7 @@ export function parseFlags(argv: string[]): Flags {
       args: argv,
       options: {
         config: { type: 'string', short: 'c' },
+        theme: { type: 'string' },
         view: { type: 'string' },
         memory: { type: 'string' },
         help: { type: 'boolean', short: 'h' },
@@ -64,6 +70,7 @@ export function parseFlags(argv: string[]): Flags {
     });
     return {
       config: values.config,
+      theme: values.theme,
       view: values.view,
       memory: values.memory,
       help: values.help ?? false,
@@ -105,7 +112,10 @@ export function parseConfigFile(text: string, path: string): ConfigResult {
   const config: Config = { ...DEFAULT_CONFIG, refresh: { ...DEFAULT_CONFIG.refresh } };
 
   for (const [key, value] of Object.entries(data)) {
-    if (key === 'view') {
+    if (key === 'theme') {
+      if (oneOf(value, PRESET_NAMES)) config.theme = value;
+      else warnings.push(`${path}: theme must be one of ${PRESET_NAMES.join(', ')}.`);
+    } else if (key === 'view') {
       if (oneOf(value, START_VIEWS)) config.view = value;
       else warnings.push(`${path}: view must be one of ${START_VIEWS.join(', ')}.`);
     } else if (key === 'memory') {
@@ -150,6 +160,11 @@ export function loadConfig({ path, label = path, explicit, readFile }: LoadOptio
 
 export function applyFlags(config: Config, flags: Flags): Config {
   const result: Config = { ...config, refresh: { ...config.refresh } };
+  if (flags.theme !== undefined) {
+    if (!oneOf(flags.theme, PRESET_NAMES))
+      throw new Error(`--theme must be one of ${PRESET_NAMES.join(', ')}.`);
+    result.theme = flags.theme;
+  }
   if (flags.view !== undefined) {
     if (!oneOf(flags.view, START_VIEWS)) throw new Error(`--view must be one of ${START_VIEWS.join(', ')}.`);
     result.view = flags.view;
