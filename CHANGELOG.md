@@ -7,6 +7,18 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- **Config file**: `docktui` reads `$XDG_CONFIG_HOME/docktui/config.toml`
+  (`~/.config/docktui/config.toml` by default) at startup. Keys: `view` (the
+  view to open), `memory` (`percent` or `absolute`) and a `[refresh]` table
+  (`containers`, `resources`, `stats`, in seconds). A missing file means the
+  defaults; an invalid file or value falls back to the defaults with a message
+  in the footer.
+- **Command line flags**: `--config <path>` (`-c`), `--view <name>`,
+  `--memory <mode>`, `--help` (`-h`) and `--version` (`-v`). Flags override the
+  config file.
+
 ## [0.3.0] - 2026-10-28
 
 ### Added
