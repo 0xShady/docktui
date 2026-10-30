@@ -2,7 +2,7 @@ import { join } from 'path';
 import { parseArgs } from 'util';
 import { parse } from 'smol-toml';
 import type { MemDisplay } from '@utils/status';
-import { PRESET_NAMES, type PresetName } from '@theme';
+import { PALETTE_KEYS, PRESET_NAMES, type Palette, type PresetName } from '@theme';
 
 export const START_VIEWS = ['stacks', 'containers', 'images', 'volumes', 'networks'] as const;
 export type StartView = (typeof START_VIEWS)[number];
@@ -16,6 +16,7 @@ export interface Config {
   view: StartView;
   memory: MemDisplay;
   refresh: Record<RefreshKey, number>;
+  colors: Partial<Palette>;
 }
 
 export const DEFAULT_CONFIG: Config = {
@@ -23,6 +24,7 @@ export const DEFAULT_CONFIG: Config = {
   view: 'stacks',
   memory: 'percent',
   refresh: { containers: 5, resources: 10, stats: 2 },
+  colors: {},
 };
 
 export interface Flags {
@@ -96,6 +98,8 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const oneOf = <T extends string>(value: unknown, allowed: readonly T[]): value is T =>
   typeof value === 'string' && (allowed as readonly string[]).includes(value);
 
+const isHex = (value: unknown): value is string => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
+
 const isInterval = (value: unknown): value is number =>
   typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 3600;
 
@@ -109,7 +113,7 @@ export function parseConfigFile(text: string, path: string): ConfigResult {
   }
 
   const warnings: string[] = [];
-  const config: Config = { ...DEFAULT_CONFIG, refresh: { ...DEFAULT_CONFIG.refresh } };
+  const config: Config = { ...DEFAULT_CONFIG, refresh: { ...DEFAULT_CONFIG.refresh }, colors: {} };
 
   for (const [key, value] of Object.entries(data)) {
     if (key === 'theme') {
@@ -127,6 +131,14 @@ export function parseConfigFile(text: string, path: string): ConfigResult {
         else if (isInterval(seconds)) config.refresh[name] = seconds;
         else warnings.push(`${path}: refresh.${name} must be a number of seconds between 1 and 3600.`);
       }
+    } else if (key === 'colors' && isRecord(value)) {
+      for (const [name, color] of Object.entries(value)) {
+        if (!oneOf(name, PALETTE_KEYS)) warnings.push(`${path}: unknown key colors.${name}.`);
+        else if (isHex(color)) config.colors[name] = color;
+        else warnings.push(`${path}: colors.${name} must be a hex color like "#rrggbb".`);
+      }
+    } else if (key === 'colors') {
+      warnings.push(`${path}: colors must be a table ([colors]).`);
     } else if (key === 'refresh') {
       warnings.push(`${path}: refresh must be a table ([refresh]).`);
     } else {
@@ -159,7 +171,7 @@ export function loadConfig({ path, label = path, explicit, readFile }: LoadOptio
 }
 
 export function applyFlags(config: Config, flags: Flags): Config {
-  const result: Config = { ...config, refresh: { ...config.refresh } };
+  const result: Config = { ...config, refresh: { ...config.refresh }, colors: { ...config.colors } };
   if (flags.theme !== undefined) {
     if (!oneOf(flags.theme, PRESET_NAMES))
       throw new Error(`--theme must be one of ${PRESET_NAMES.join(', ')}.`);
@@ -175,4 +187,8 @@ export function applyFlags(config: Config, flags: Flags): Config {
     result.memory = flags.memory;
   }
   return result;
+}
+
+export function resolvePalette(config: Config, presets: Record<PresetName, Palette>): Palette {
+  return { ...presets[config.theme], ...config.colors };
 }

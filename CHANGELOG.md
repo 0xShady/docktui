@@ -17,6 +17,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   in the footer.
 - **Theme presets**: `default` (the original palette), `nord`, `gruvbox` and
   `dracula`, chosen with `theme = "nord"` in the config or `--theme nord`.
+- **Your own colors**: a `[colors]` table in the config overrides any palette
+  key (`bg`, `fg`, `accent`, `green`, ...) on top of the chosen preset. Values
+  are hex colors (`"#rrggbb"`); an invalid value or unknown key is skipped with
+  a message in the footer.
 - **Command line flags**: `--config <path>` (`-c`), `--view <name>`,
   `--memory <mode>`, `--theme <name>`, `--help` (`-h`) and `--version` (`-v`).
   Flags override the config file.
