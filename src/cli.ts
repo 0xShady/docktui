@@ -5,6 +5,7 @@ import { homedir } from 'os';
 import { pingDocker } from '@docker/client';
 import { App } from '@ui/app';
 import { detectColors } from '@utils/term-caps';
+import { PRESETS, applyTheme } from '@theme';
 import { HELP_TEXT, applyFlags, configPath, loadConfig, parseFlags, tildify } from '@utils/config';
 
 const pkg = createRequire(__filename)('../package.json') as { version: string };
@@ -43,6 +44,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   for (const warning of warnings) process.stderr.write(`${warning}\n`);
+  applyTheme(PRESETS[config.theme]);
 
   const colors = detectColors();
   if (colors === 'low') {
