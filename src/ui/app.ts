@@ -18,10 +18,16 @@ import { ContainersTab } from '@ui/containers/containers-tab';
 import { ImagesTab } from '@ui/images/images-tab';
 import { VolumesTab } from '@ui/volumes/volumes-tab';
 import { NetworksTab } from '@ui/networks/networks-tab';
+import type { Config } from '@utils/config';
 
 const VIEW_ORDER: ViewId[] = ['stacks', 'containers', 'images', 'volumes', 'networks'];
 
 const msgOf = (err: unknown): string => (err instanceof Error ? err.message : String(err));
+
+export interface AppOptions {
+  config: Config;
+  notices: string[];
+}
 
 export class App {
   private screen: blessed.Widgets.Screen;
@@ -36,7 +42,7 @@ export class App {
   private volumesTab: VolumesTab;
   private networksTab: NetworksTab;
 
-  private activeView: ViewId = 'stacks';
+  private activeView: ViewId;
   private overlayOpen = false;
 
   private containers: ContainerInfo[] = [];
@@ -44,7 +50,9 @@ export class App {
   private imageCount = 0;
   private volumeCount = 0;
   private networkCount = 0;
-  private memDisplay: MemDisplay = 'percent';
+  private memDisplay: MemDisplay;
+  private readonly config: Config;
+  private readonly notices: string[];
   private aggregateStats: { cpuPercent: number; memUsageMB: number } | null = null;
 
   private pollTimers: NodeJS.Timeout[] = [];
@@ -55,7 +63,12 @@ export class App {
   private pollingResources = false;
   private pollingStats = false;
 
-  constructor() {
+  constructor({ config, notices }: AppOptions) {
+    this.config = config;
+    this.notices = notices;
+    this.activeView = config.view;
+    this.memDisplay = config.memory;
+
     this.screen = blessed.screen({
       smartCSR: true,
       mouse: true,
@@ -81,6 +94,8 @@ export class App {
     this.imagesTab = new ImagesTab(this.screen, tabDims);
     this.volumesTab = new VolumesTab(this.screen, tabDims);
     this.networksTab = new NetworksTab(this.screen, tabDims);
+    this.stacksTab.setMemDisplay(this.memDisplay);
+    this.containersTab.setMemDisplay(this.memDisplay);
 
     this.wireEvents();
     this.setupKeys();
@@ -370,7 +385,7 @@ export class App {
     this.topBar.setCounters({ running: 0, errored: 0, stopped: 0 });
     this.topBar.render();
 
-    this.rail.setActiveView('stacks');
+    this.rail.setActiveView(this.activeView);
     this.rail.setCounts({ stacks: 0, containers: 0, images: 0, volumes: 0, networks: 0 });
 
     this.footer.setContext('global');
@@ -382,8 +397,10 @@ export class App {
     this.volumesTab.showLoading();
     this.networksTab.showLoading();
 
-    this.showTab('stacks');
+    this.showTab(this.activeView);
+    this.footer.setContext(this.defaultContextFor(this.activeView));
     this.render();
+    if (this.notices.length > 0) this.setFooterMessage(this.notices.join('  '), 'red', 8000);
 
     await this.pollContainers();
     await this.pollResources();
@@ -395,13 +412,13 @@ export class App {
     this.pollTimers.push(
       setInterval(() => {
         void this.pollContainers();
-      }, 5000),
+      }, this.config.refresh.containers * 1000),
       setInterval(() => {
         void this.pollResources();
-      }, 10000),
+      }, this.config.refresh.resources * 1000),
       setInterval(() => {
         void this.pollStats();
-      }, 2000),
+      }, this.config.refresh.stats * 1000),
     );
 
     return new Promise<void>((resolve) => {

@@ -54,12 +54,14 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "dockerode": "^4.0.2",
-    "neo-blessed": "^0.2.0"
+    "neo-blessed": "^0.2.0",
+    "smol-toml": "^1.9.1"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.25",
     "@types/dockerode": "^3.3.29",
     "@types/node": "^20.14.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.13.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",
@@ -68,7 +70,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.12.0",
-    "vitest": "^4.1.6",
-    "@vitest/coverage-v8": "^4.1.6"
+    "vitest": "^4.1.6"
   }
 }

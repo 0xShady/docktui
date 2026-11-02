@@ -1,9 +1,49 @@
 #!/usr/bin/env node
+import { readFileSync } from 'fs';
+import { createRequire } from 'module';
+import { homedir } from 'os';
 import { pingDocker } from '@docker/client';
 import { App } from '@ui/app';
 import { detectColors } from '@utils/term-caps';
+import { HELP_TEXT, applyFlags, configPath, loadConfig, parseFlags, tildify } from '@utils/config';
+
+const pkg = createRequire(__filename)('../package.json') as { version: string };
 
 async function main(): Promise<void> {
+  let flags;
+  try {
+    flags = parseFlags(process.argv.slice(2));
+  } catch (err) {
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+    process.exit(1);
+  }
+  if (flags.help) {
+    process.stdout.write(HELP_TEXT);
+    process.exit(0);
+  }
+  if (flags.version) {
+    process.stdout.write(`${pkg.version}\n`);
+    process.exit(0);
+  }
+
+  let config;
+  let warnings: string[];
+  try {
+    const path = flags.config ?? configPath(process.env, homedir());
+    const loaded = loadConfig({
+      path,
+      label: tildify(path, homedir()),
+      explicit: flags.config !== undefined,
+      readFile: (file) => readFileSync(file, 'utf8'),
+    });
+    config = applyFlags(loaded.config, flags);
+    warnings = loaded.warnings;
+  } catch (err) {
+    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+    process.exit(1);
+  }
+  for (const warning of warnings) process.stderr.write(`${warning}\n`);
+
   const colors = detectColors();
   if (colors === 'low') {
     process.stderr.write(
@@ -20,7 +60,7 @@ async function main(): Promise<void> {
   }
 
   try {
-    const app = new App();
+    const app = new App({ config, notices: warnings });
     await app.start();
     process.exit(0);
   } catch (err) {
