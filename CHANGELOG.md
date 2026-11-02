@@ -15,9 +15,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   (`containers`, `resources`, `stats`, in seconds). A missing file means the
   defaults; an invalid file or value falls back to the defaults with a message
   in the footer.
+- **Theme presets**: `default` (the original palette), `nord`, `gruvbox` and
+  `dracula`, chosen with `theme = "nord"` in the config or `--theme nord`.
 - **Command line flags**: `--config <path>` (`-c`), `--view <name>`,
-  `--memory <mode>`, `--help` (`-h`) and `--version` (`-v`). Flags override the
-  config file.
+  `--memory <mode>`, `--theme <name>`, `--help` (`-h`) and `--version` (`-v`).
+  Flags override the config file.
 
 ## [0.3.0] - 2026-10-28
 

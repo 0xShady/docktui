@@ -18,6 +18,7 @@ describe('parseFlags', () => {
   it('returns defaults when no flags are given', () => {
     expect(parseFlags([])).toEqual({
       config: undefined,
+      theme: undefined,
       view: undefined,
       memory: undefined,
       help: false,
@@ -26,8 +27,11 @@ describe('parseFlags', () => {
   });
 
   it('reads long and short flags', () => {
-    expect(parseFlags(['-c', 'my.toml', '--view', 'images', '--memory=absolute', '-h', '-v'])).toEqual({
+    expect(
+      parseFlags(['-c', 'my.toml', '--theme', 'nord', '--view', 'images', '--memory=absolute', '-h', '-v']),
+    ).toEqual({
       config: 'my.toml',
+      theme: 'nord',
       view: 'images',
       memory: 'absolute',
       help: true,
@@ -78,9 +82,14 @@ describe('parseConfigFile', () => {
 
   it('reads every key', () => {
     const text =
-      'view = "networks"\nmemory = "absolute"\n[refresh]\ncontainers = 3\nresources = 30\nstats = 1.5\n';
+      'theme = "gruvbox"\nview = "networks"\nmemory = "absolute"\n[refresh]\ncontainers = 3\nresources = 30\nstats = 1.5\n';
     expect(parseConfigFile(text, 'c.toml')).toEqual({
-      config: { view: 'networks', memory: 'absolute', refresh: { containers: 3, resources: 30, stats: 1.5 } },
+      config: {
+        theme: 'gruvbox',
+        view: 'networks',
+        memory: 'absolute',
+        refresh: { containers: 3, resources: 30, stats: 1.5 },
+      },
       warnings: [],
     });
   });
@@ -107,6 +116,12 @@ describe('parseConfigFile', () => {
       'c.toml: refresh.containers must be a number of seconds between 1 and 3600.',
       'c.toml: refresh.stats must be a number of seconds between 1 and 3600.',
     ]);
+  });
+
+  it('warns about an unknown theme', () => {
+    const { config, warnings } = parseConfigFile('theme = "solarized"\n', 'c.toml');
+    expect(config.theme).toBe('default');
+    expect(warnings).toEqual(['c.toml: theme must be one of default, nord, gruvbox, dracula.']);
   });
 
   it('warns about unknown keys', () => {
@@ -176,6 +191,14 @@ describe('applyFlags', () => {
       view: 'volumes',
       memory: 'absolute',
     });
+  });
+
+  it('applies --theme', () => {
+    expect(applyFlags(DEFAULT_CONFIG, { ...noFlags, theme: 'dracula' }).theme).toBe('dracula');
+  });
+
+  it('rejects an invalid --theme', () => {
+    expect(() => applyFlags(DEFAULT_CONFIG, { ...noFlags, theme: 'neon' })).toThrow(/--theme must be one of/);
   });
 
   it('rejects an invalid --view', () => {
