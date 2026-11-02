@@ -7,8 +7,10 @@ import {
   loadConfig,
   parseConfigFile,
   parseFlags,
+  resolvePalette,
   tildify,
 } from '@utils/config';
+import { PRESETS } from '@theme';
 
 const enoent = (): never => {
   throw Object.assign(new Error('ENOENT: no such file or directory'), { code: 'ENOENT' });
@@ -89,6 +91,7 @@ describe('parseConfigFile', () => {
         view: 'networks',
         memory: 'absolute',
         refresh: { containers: 3, resources: 30, stats: 1.5 },
+        colors: {},
       },
       warnings: [],
     });
@@ -122,6 +125,28 @@ describe('parseConfigFile', () => {
     const { config, warnings } = parseConfigFile('theme = "solarized"\n', 'c.toml');
     expect(config.theme).toBe('default');
     expect(warnings).toEqual(['c.toml: theme must be one of default, nord, gruvbox, dracula.']);
+  });
+
+  it('reads color overrides', () => {
+    const { config, warnings } = parseConfigFile('[colors]\naccent = "#FF00AA"\nbg = "#000000"\n', 'c.toml');
+    expect(config.colors).toEqual({ accent: '#FF00AA', bg: '#000000' });
+    expect(warnings).toEqual([]);
+  });
+
+  it('warns about invalid colors and unknown color keys', () => {
+    const text = '[colors]\naccent = "red"\ngreen = "#12345"\ncyan = "#00ffff"\nred = "#ff0000"\n';
+    const { config, warnings } = parseConfigFile(text, 'c.toml');
+    expect(config.colors).toEqual({ red: '#ff0000' });
+    expect(warnings).toEqual([
+      'c.toml: colors.accent must be a hex color like "#rrggbb".',
+      'c.toml: colors.green must be a hex color like "#rrggbb".',
+      'c.toml: unknown key colors.cyan.',
+    ]);
+  });
+
+  it('warns when colors is not a table', () => {
+    const { warnings } = parseConfigFile('colors = "nord"\n', 'c.toml');
+    expect(warnings).toEqual(['c.toml: colors must be a table ([colors]).']);
   });
 
   it('warns about unknown keys', () => {
@@ -207,5 +232,19 @@ describe('applyFlags', () => {
 
   it('rejects an invalid --memory', () => {
     expect(() => applyFlags(DEFAULT_CONFIG, { ...noFlags, memory: 'mb' })).toThrow(/--memory must be one of/);
+  });
+});
+
+describe('resolvePalette', () => {
+  it('returns the preset when there are no overrides', () => {
+    expect(resolvePalette({ ...DEFAULT_CONFIG, theme: 'nord' }, PRESETS)).toEqual(PRESETS.nord);
+  });
+
+  it('applies overrides on top of the preset', () => {
+    const palette = resolvePalette(
+      { ...DEFAULT_CONFIG, theme: 'gruvbox', colors: { accent: '#ff00aa' } },
+      PRESETS,
+    );
+    expect(palette).toEqual({ ...PRESETS.gruvbox, accent: '#ff00aa' });
   });
 });
