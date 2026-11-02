@@ -45,6 +45,7 @@ Releases are published to npm from GitHub Actions with [provenance](https://docs
 - **Side rail navigation** — `1`–`5` or `Tab` cycles views; click a live stack to jump to it.
 - **Help overlay** — press `h` anywhere (except confirm dialogs / the stack filter) to toggle the key-binding reference.
 - **Shell into containers** — `x` opens an external terminal `exec`'d into the selected container (macOS Terminal, Windows Terminal, common Linux emulators).
+- **Themes and a config file**: four built-in themes (`default`, `nord`, `gruvbox`, `dracula`), your own colors on top, the view to open, the memory display and refresh rates, all in `~/.config/docktui/config.toml` or as flags.
 - **Honors `DOCKER_HOST`** — works with rootless Docker, podman, and remote daemons.
 
 ## Requirements
@@ -54,6 +55,51 @@ Releases are published to npm from GitHub Actions with [provenance](https://docs
 - A **256-color** or **truecolor** terminal (`TERM=xterm-256color` or `COLORTERM=truecolor`)
 
 ## Configuration
+
+### Config file
+
+docktui reads `$XDG_CONFIG_HOME/docktui/config.toml` at startup (`~/.config/docktui/config.toml` when `XDG_CONFIG_HOME` is not set, on every OS). The file is optional; every key has a default.
+
+```toml
+theme = "nord"        # default, nord, gruvbox, dracula
+view = "containers"   # stacks, containers, images, volumes, networks
+memory = "absolute"   # percent, absolute (used of limit)
+
+[refresh]             # polling intervals in seconds (1 to 3600)
+containers = 5
+resources = 10        # images, volumes, networks
+stats = 2
+
+[colors]              # your own colors, on top of the theme
+accent = "#ff79c6"
+bg = "#1e1e2e"
+```
+
+An invalid file, value or unknown key falls back to the default for that part and shows a message in the footer (and on stderr).
+
+### Themes
+
+| Theme | |
+|-------|---|
+| `default` | The original docktui palette |
+| `nord` | [Nord](https://www.nordtheme.com/) colors |
+| `gruvbox` | [Gruvbox](https://github.com/morhetz/gruvbox) dark |
+| `dracula` | [Dracula](https://draculatheme.com/) |
+
+Any key below can be set in `[colors]` as a `"#rrggbb"` hex color: `bg`, `bgSoft`, `panel`, `bgSel`, `bgSelEdge`, `fg`, `dim`, `faint`, `rule`, `rule2`, `accent`, `purple`, `green`, `aqua`, `yellow`, `orange`, `red`, `pink`.
+
+### Command line flags
+
+| Flag | |
+|------|---|
+| `-c, --config <path>` | Read another config file (it must exist) |
+| `--theme <name>` | Theme for this run |
+| `--view <name>` | View to open |
+| `--memory <mode>` | `percent` or `absolute` |
+| `-h, --help` | Show the flags |
+| `-v, --version` | Show the version |
+
+Flags override the config file, which overrides the defaults.
 
 ### Custom Docker host
 
