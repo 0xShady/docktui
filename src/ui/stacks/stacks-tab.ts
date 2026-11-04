@@ -124,13 +124,7 @@ export class StacksTab {
   on(event: 'log-follow-change', handler: LogFollowHandler): void;
   on(
     event:
-      | 'error'
-      | 'message'
-      | 'navigate'
-      | 'stack-update'
-      | 'detail-open'
-      | 'log-open'
-      | 'log-follow-change',
+      'error' | 'message' | 'navigate' | 'stack-update' | 'detail-open' | 'log-open' | 'log-follow-change',
     handler:
       | ErrorHandler
       | MessageHandler
