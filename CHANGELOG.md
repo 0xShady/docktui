@@ -7,6 +7,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-04
+
 ### Security
 
 - Upgrade `dockerode` to 5, which drops the vulnerable `uuid` dependency, and
@@ -118,7 +120,8 @@ First public release on npm.
 - CI runs lint, format check, build, and tests on Ubuntu / macOS / Windows × Node 20 / 22.
 - npm tarball ships only `dist/` + `README.md` + `LICENSE` (~32 kB).
 
-[Unreleased]: https://github.com/0xShady/docktui/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/0xShady/docktui/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/0xShady/docktui/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/0xShady/docktui/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/0xShady/docktui/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/0xShady/docktui/releases/tag/v0.2.0
