@@ -7,6 +7,11 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Security
+
+- Upgrade `dockerode` to 5, which drops the vulnerable `uuid` dependency, and
+  update `@grpc/grpc-js` and `protobufjs` to patched versions.
+
 ## [0.4.0] - 2026-11-02
 
 ### Added
