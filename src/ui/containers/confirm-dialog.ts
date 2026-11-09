@@ -60,7 +60,7 @@ export class ConfirmDialog {
 
     const danger = options.danger ?? false;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
     (this.box as any).style.border.fg = danger ? C.red : C.purple;
 
     const confirmBtn = danger

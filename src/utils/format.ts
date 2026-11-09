@@ -33,7 +33,7 @@ export function relativeTime(date: Date): string {
 
 export function truncate(s: string, n: number): string {
   if (s.length <= n) return s;
-  return s.slice(0, n - 1) + '…';
+  return `${s.slice(0, n - 1)}…`;
 }
 
 export function truncateMiddle(s: string, maxLen: number, ellipsis = '…'): string {
@@ -65,7 +65,7 @@ export function wrapText(text: string, width: number): string[] {
   for (const word of text.split(/\s+/).filter(Boolean)) {
     let rest = word;
     if (line && line.length + 1 + rest.length <= width) {
-      line += ' ' + rest;
+      line += ` ${rest}`;
       continue;
     }
     if (line) lines.push(line);

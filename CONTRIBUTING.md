@@ -40,7 +40,7 @@ Imports use TypeScript path aliases (`@docker/*`, `@ui/*`, `@utils/*`, `@models/
 
 ## Coding conventions
 
-- **TypeScript strict** mode. Avoid `any` outside the dockerode-narrowing edge — when you do need it, add `// eslint-disable-next-line @typescript-eslint/no-explicit-any` with a comment explaining why.
+- **TypeScript strict** mode. Avoid `any` outside the dockerode-narrowing edge. When you do need it, add `// biome-ignore lint/suspicious/noExplicitAny: <why>` on the line above.
 - **One primary export per file**, named (not default). No `index.ts` barrels.
 - **File names**: `kebab-case.ts` (e.g. `container-list.ts`, `status-bar.ts`).
 - **Async** functions wrap their bodies in `try` / `catch` and rethrow with a human-readable message — never swallow errors silently.
@@ -79,7 +79,7 @@ npm test
 npm run build
 ```
 
-`format:check` fails on style drift — run `npm run format` to auto-fix.
+Lint and format both run on [Biome](https://biomejs.dev) (`biome.json`). `npm run lint` checks lint and formatting together; `npm run lint:fix` applies the safe fixes and `npm run format` rewrites the formatting.
 
 ## Submitting a pull request
 
