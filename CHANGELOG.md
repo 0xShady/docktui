@@ -7,6 +7,14 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+
+- **Kill is now `K`** (Shift+k) in the Stacks and Containers views and the
+  detail panel, instead of `k`. `j` / `k` are vim-style navigation, as the help
+  overlay and README already documented; before, `k` on a running service moved
+  the cursor up and opened the kill confirm at the same time. The log viewer
+  keeps `k` for scroll up.
+
 ## [0.4.1] - 2026-11-04
 
 ### Security
