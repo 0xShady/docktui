@@ -53,7 +53,7 @@ const HINTS: Record<FooterContext, Hint[]> = {
     { key: 'x', verb: 'shell' },
     { key: 's', verb: 'stop' },
     { key: 'r', verb: 'restart' },
-    { key: 'k', verb: 'kill' },
+    { key: 'K', verb: 'kill' },
     { key: '/', verb: 'filter' },
     { key: 'h', verb: 'help' },
   ],
@@ -73,7 +73,7 @@ const HINTS: Record<FooterContext, Hint[]> = {
     { key: 'x', verb: 'shell' },
     { key: 's', verb: 'stop' },
     { key: 'r', verb: 'restart' },
-    { key: 'k', verb: 'kill' },
+    { key: 'K', verb: 'kill' },
     { key: 'h', verb: 'help' },
   ],
   'containers-stopped': [
@@ -111,7 +111,7 @@ const HINTS: Record<FooterContext, Hint[]> = {
   detail: [
     { key: 'e', verb: 'env' },
     { key: 'l', verb: 'logs' },
-    { key: 's/r/k', verb: 'ctrl' },
+    { key: 's/r/K', verb: 'ctrl' },
     { key: '↑↓', verb: 'scroll' },
     { key: 'Esc', verb: 'close' },
   ],

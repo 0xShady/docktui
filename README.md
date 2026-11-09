@@ -140,7 +140,7 @@ Requires the `docker` CLI to be on your `PATH`. docktui launches your platform's
 | `/` | Open filter (`Esc` to clear) |
 | `l` | Open log viewer |
 | `x` | Shell into selected running container |
-| `s` / `r` / `k` | On a service: stop / restart / kill running container (confirm) |
+| `s` / `r` / `K` | On a service: stop / restart / kill running container (confirm) |
 | `S` | On a service: start stopped container |
 | `d` | On a service: remove stopped container (confirm) |
 
@@ -152,7 +152,7 @@ Same per-container actions as Stacks. `Enter` always opens the detail panel.
 
 ### Detail panel
 
-Same container actions as the list/tree (`l`, `s`, `r`, `k`, `S`, `d`, `x`) plus:
+Same container actions as the list/tree (`l`, `s`, `r`, `K`, `S`, `d`, `x`) plus:
 
 | Key | Action |
 |-----|--------|

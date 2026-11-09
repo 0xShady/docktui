@@ -94,7 +94,7 @@ export class ContainersTab {
     );
   };
 
-  private readonly handleK = () => {
+  private readonly handleShiftK = () => {
     if (!this.active || this.isModalOpen()) return;
     const c = this.getActionTarget();
     if (!c || !isActive(c.status)) return;
@@ -215,7 +215,7 @@ export class ContainersTab {
     this.screen.key(['l'], this.handleL);
     this.screen.key(['s'], this.handleS);
     this.screen.key(['r'], this.handleR);
-    this.screen.key(['k'], this.handleK);
+    this.screen.key(['S-k'], this.handleShiftK);
     this.screen.key(['S-s'], this.handleShiftS);
     this.screen.key(['d'], this.handleD);
     this.screen.key(['x'], this.handleX);
@@ -234,7 +234,7 @@ export class ContainersTab {
     this.screen.removeKey('l', this.handleL);
     this.screen.removeKey('s', this.handleS);
     this.screen.removeKey('r', this.handleR);
-    this.screen.removeKey('k', this.handleK);
+    this.screen.removeKey('S-k', this.handleShiftK);
     this.screen.removeKey('S-s', this.handleShiftS);
     this.screen.removeKey('d', this.handleD);
     this.screen.removeKey('x', this.handleX);
