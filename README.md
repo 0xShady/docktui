@@ -15,7 +15,7 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
 </p>
 
-[![asciicast](https://asciinema.org/a/HTiHwc2Ggy4wvsZU.svg)](https://asciinema.org/a/HTiHwc2Ggy4wvsZU)
+[![docktui demo: stacks, live stats, logs and compose up](https://raw.githubusercontent.com/0xShady/docktui/main/assets/demo.gif)](https://asciinema.org/a/EqtNjKfPxo7HqRdG)
 
 ## Install
 
