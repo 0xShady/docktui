@@ -7,7 +7,13 @@ export interface MountInfo {
 }
 
 export type ContainerStatus =
-  'running' | 'paused' | 'exited' | 'restarting' | 'dead' | 'created' | 'removing';
+  | 'running'
+  | 'paused'
+  | 'exited'
+  | 'restarting'
+  | 'dead'
+  | 'created'
+  | 'removing';
 
 export interface ContainerInfo {
   id: string;

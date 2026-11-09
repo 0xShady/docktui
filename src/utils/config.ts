@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { parseArgs } from 'util';
+import { join } from 'node:path';
+import { parseArgs } from 'node:util';
 import { parse } from 'smol-toml';
 import type { MemDisplay } from '@utils/status';
 import { PALETTE_KEYS, PRESET_NAMES, type Palette, type PresetName } from '@theme';

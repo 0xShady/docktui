@@ -162,7 +162,7 @@ export class StackTree {
 
   toggleExpansion(): boolean {
     const sel = this.rows[listSelected(this.list)];
-    if (!sel || sel.kind !== 'stack-header') return false;
+    if (sel?.kind !== 'stack-header') return false;
     if (this.expanded.has(sel.stackId)) this.expanded.delete(sel.stackId);
     else this.expanded.add(sel.stackId);
     this.rebuild({ preserveSelection: true });

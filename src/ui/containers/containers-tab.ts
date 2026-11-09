@@ -140,7 +140,7 @@ export class ContainersTab {
   private readonly handleX = () => {
     if (!this.active || this.isModalOpen()) return;
     const c = this.getActionTarget();
-    if (!c || c.status !== 'running') {
+    if (c?.status !== 'running') {
       if (c) this.emitError(`Cannot exec into ${c.name}: container is not running`);
       return;
     }
@@ -289,7 +289,7 @@ export class ContainersTab {
 
     if (cursorId) {
       const newIdx = containers.findIndex((c) => c.id === cursorId);
-      this.selectedIndex = newIdx >= 0 ? newIdx : 0;
+      this.selectedIndex = Math.max(newIdx, 0);
     }
     this.selectedIndex = Math.min(this.selectedIndex, Math.max(0, containers.length - 1));
 

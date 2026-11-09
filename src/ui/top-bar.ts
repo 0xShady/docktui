@@ -1,4 +1,4 @@
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 import blessed from 'neo-blessed';
 import { C, t } from '@theme';
 import { humanSizeMB, truncateMiddle, visualLength } from '@utils/format';
@@ -82,7 +82,7 @@ export class TopBar {
       `  ${t.fg(String(this.counters.stopped))} ${t.dim('stop')}`;
 
     const stats = this.stats
-      ? `${t.dim('cpu')} ${t.dim(this.stats.cpuPercent.toFixed(1) + '%')}` +
+      ? `${t.dim('cpu')} ${t.dim(`${this.stats.cpuPercent.toFixed(1)}%`)}` +
         `  ${t.dim('mem')} ${t.dim(humanSizeMB(this.stats.memUsageMB))}`
       : '';
 
@@ -90,6 +90,6 @@ export class TopBar {
     if (width >= 120 && stats) pieces.push(stats);
     if (width >= 95) pieces.push(counters);
 
-    return pieces.join(SEP) + ' ';
+    return `${pieces.join(SEP)} `;
   }
 }

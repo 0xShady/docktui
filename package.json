@@ -44,10 +44,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "prepublishOnly": "npm run lint && npm run format:check && npm run build && npm test",
     "release": "sh scripts/release.sh"
   },
@@ -58,18 +58,15 @@
     "smol-toml": "^1.9.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.6",
     "@types/blessed": "^0.1.25",
     "@types/dockerode": "^3.3.29",
     "@types/node": "^20.14.0",
     "@vitest/coverage-v8": "^4.1.6",
-    "eslint": "^9.13.0",
-    "eslint-config-prettier": "^9.1.0",
-    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^8.12.0",
     "vitest": "^4.1.6"
   }
 }

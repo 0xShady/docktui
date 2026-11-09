@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { readdirSync, readFileSync, statSync } from 'fs';
-import { join, resolve } from 'path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { C, PALETTE_KEYS, PRESETS, PRESET_NAMES, applyTheme, t } from '@theme';
 
 const HEX = /^#[0-9a-f]{6}$/i;

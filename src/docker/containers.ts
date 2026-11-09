@@ -89,22 +89,22 @@ export async function listContainers(): Promise<ContainerInfo[]> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
 export function toContainerStats(stats: any): ContainerStats {
   const usage: number = stats.memory_stats.usage;
   const limit: number = stats.memory_stats.limit;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
   const blkio: any[] = stats.blkio_stats?.io_service_bytes_recursive ?? [];
   const readBytes = blkio
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
     .filter((b: any) => b.op === 'Read' || b.op === 'read')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
     .reduce((sum: number, b: any) => sum + (b.value ?? 0), 0);
   const writeBytes = blkio
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
     .filter((b: any) => b.op === 'Write' || b.op === 'write')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
     .reduce((sum: number, b: any) => sum + (b.value ?? 0), 0);
 
   return {

@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-import { readFileSync } from 'fs';
-import { createRequire } from 'module';
-import { homedir } from 'os';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { homedir } from 'node:os';
 import { pingDocker } from '@docker/client';
 import { App } from '@ui/app';
 import { detectColors } from '@utils/term-caps';
 import { PRESETS, applyTheme } from '@theme';
 import {
+  type Config,
+  type Flags,
   HELP_TEXT,
   applyFlags,
   configPath,
@@ -19,7 +21,7 @@ import {
 const pkg = createRequire(__filename)('../package.json') as { version: string };
 
 async function main(): Promise<void> {
-  let flags;
+  let flags: Flags;
   try {
     flags = parseFlags(process.argv.slice(2));
   } catch (err) {
@@ -35,7 +37,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  let config;
+  let config: Config;
   let warnings: string[];
   try {
     const path = flags.config ?? configPath(process.env, homedir());

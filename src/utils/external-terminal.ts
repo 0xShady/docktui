@@ -1,5 +1,5 @@
-import { spawn, spawnSync } from 'child_process';
-import { platform } from 'os';
+import { spawn, spawnSync } from 'node:child_process';
+import { platform } from 'node:os';
 
 export interface SpawnResult {
   ok: boolean;

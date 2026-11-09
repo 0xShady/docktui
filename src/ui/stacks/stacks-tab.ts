@@ -124,7 +124,13 @@ export class StacksTab {
   on(event: 'log-follow-change', handler: LogFollowHandler): void;
   on(
     event:
-      'error' | 'message' | 'navigate' | 'stack-update' | 'detail-open' | 'log-open' | 'log-follow-change',
+      | 'error'
+      | 'message'
+      | 'navigate'
+      | 'stack-update'
+      | 'detail-open'
+      | 'log-open'
+      | 'log-follow-change',
     handler:
       | ErrorHandler
       | MessageHandler
@@ -356,7 +362,7 @@ export class StacksTab {
   private readonly handleX = () => {
     if (!this.active || this.isModalOpen()) return;
     const c = this.getActionTarget();
-    if (!c || c.status !== 'running') {
+    if (c?.status !== 'running') {
       if (c) this.emitError(`Cannot exec into ${c.name}: container is not running`);
       return;
     }
@@ -516,7 +522,7 @@ export class StacksTab {
       if (id) return this.containers.find((c) => c.id === id) ?? null;
     }
     const sel = this.tree.getSelected();
-    if (!sel || sel.kind !== 'service') return null;
+    if (sel?.kind !== 'service') return null;
     return sel.container;
   }
 

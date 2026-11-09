@@ -17,7 +17,7 @@ interface ListOptions {
 }
 
 export function listSelected(list: blessed.Widgets.ListElement): number {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: untyped payload at the dockerode/blessed edge
   const raw = (list as any).selected;
   return typeof raw === 'number' ? raw : 0;
 }

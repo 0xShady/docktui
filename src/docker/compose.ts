@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import { existsSync } from 'fs';
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { composeArgs, lastOutputLine, type ComposeProject, type ComposeVerb } from '@utils/compose';
 
 const OUTPUT_TAIL = 4000;

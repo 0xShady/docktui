@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 
 const src = (sub: string) => resolve(__dirname, 'src', sub);
 
