@@ -15,7 +15,7 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
 </p>
 
-[![asciicast](https://asciinema.org/a/rJDTBEu2zzR1KDzS.svg)](https://asciinema.org/a/rJDTBEu2zzR1KDzS)
+[![asciicast](https://asciinema.org/a/HTiHwc2Ggy4wvsZU.svg)](https://asciinema.org/a/HTiHwc2Ggy4wvsZU)
 
 ## Install
 
