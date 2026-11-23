@@ -7,6 +7,8 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-11-23
+
 ### Fixed
 
 - The detail panel shows `[K] Kill`. It still said `[k]` after kill moved to `K`
@@ -139,7 +141,8 @@ First public release on npm.
 - CI runs lint, format check, build, and tests on Ubuntu / macOS / Windows × Node 20 / 22.
 - npm tarball ships only `dist/` + `README.md` + `LICENSE` (~32 kB).
 
-[Unreleased]: https://github.com/0xShady/docktui/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/0xShady/docktui/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/0xShady/docktui/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/0xShady/docktui/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/0xShady/docktui/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/0xShady/docktui/compare/v0.3.0...v0.4.0
