@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
-import relativeTimePlugin from 'dayjs/plugin/relativeTime';
-
-dayjs.extend(relativeTimePlugin);
+const DAY_MS = 86_400_000;
+const DAYS_PER_YEAR = 365.2425;
+const DAYS_PER_MONTH = DAYS_PER_YEAR / 12;
 
 export function humanUptime(startedAt: Date): string {
   const totalSeconds = Math.max(0, Math.floor((Date.now() - startedAt.getTime()) / 1000));
@@ -27,8 +26,33 @@ export function compactSizeMB(mb: number): string {
   return `${gb < 10 ? gb.toFixed(1) : Math.round(gb)}G`;
 }
 
+function count(n: number, one: string, unit: string): string {
+  return n <= 1 ? one : `${n} ${unit}`;
+}
+
+function relativeSpan(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  if (seconds <= 44) return 'a few seconds';
+  if (seconds <= 89) return 'a minute';
+  const minutes = Math.round(ms / 60_000);
+  if (minutes <= 44) return count(minutes, 'a minute', 'minutes');
+  if (minutes <= 89) return 'an hour';
+  const hours = Math.round(ms / 3_600_000);
+  if (hours <= 21) return count(hours, 'an hour', 'hours');
+  if (hours <= 35) return 'a day';
+  const days = Math.round(ms / DAY_MS);
+  if (days <= 25) return count(days, 'a day', 'days');
+  if (days <= 45) return 'a month';
+  const months = Math.round(ms / (DAY_MS * DAYS_PER_MONTH));
+  if (months <= 10) return count(months, 'a month', 'months');
+  if (months <= 17) return 'a year';
+  return count(Math.round(ms / (DAY_MS * DAYS_PER_YEAR)), 'a year', 'years');
+}
+
 export function relativeTime(date: Date): string {
-  return dayjs(date).fromNow();
+  const elapsed = Date.now() - date.getTime();
+  const span = relativeSpan(Math.abs(elapsed));
+  return elapsed < 0 ? `in ${span}` : `${span} ago`;
 }
 
 export function truncate(s: string, n: number): string {

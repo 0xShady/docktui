@@ -120,12 +120,48 @@ describe('padEnd', () => {
 });
 
 describe('relativeTime', () => {
-  it('returns a dayjs-style relative string', () => {
+  const NOW = new Date('2026-05-14T12:00:00Z').getTime();
+  const SECOND = 1000;
+  const MINUTE = 60 * SECOND;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+
+  beforeEach(() => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-05-14T12:00:00Z'));
-    const oneHourAgo = new Date('2026-05-14T11:00:00Z');
-    expect(relativeTime(oneHourAgo)).toMatch(/hour|ago/);
+    vi.setSystemTime(NOW);
+  });
+
+  afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it.each([
+    [0, 'a few seconds ago'],
+    [44 * SECOND, 'a few seconds ago'],
+    [45 * SECOND, 'a minute ago'],
+    [89 * SECOND, 'a minute ago'],
+    [89.6 * SECOND, 'a minute ago'],
+    [90 * SECOND, '2 minutes ago'],
+    [44 * MINUTE, '44 minutes ago'],
+    [45 * MINUTE, 'an hour ago'],
+    [89.6 * MINUTE, 'an hour ago'],
+    [90 * MINUTE, '2 hours ago'],
+    [21 * HOUR, '21 hours ago'],
+    [22 * HOUR, 'a day ago'],
+    [35.6 * HOUR, 'a day ago'],
+    [36 * HOUR, '2 days ago'],
+    [25 * DAY, '25 days ago'],
+    [26 * DAY, 'a month ago'],
+    [60 * DAY, '2 months ago'],
+    [300 * DAY, '10 months ago'],
+    [330 * DAY, 'a year ago'],
+    [3 * 365 * DAY, '3 years ago'],
+  ])('renders %d ms ago', (elapsed, expected) => {
+    expect(relativeTime(new Date(NOW - elapsed))).toBe(expected);
+  });
+
+  it('renders dates ahead of the local clock', () => {
+    expect(relativeTime(new Date(NOW + 5 * MINUTE))).toBe('in 5 minutes');
   });
 });
 
