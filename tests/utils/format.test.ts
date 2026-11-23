@@ -84,6 +84,11 @@ describe('humanSizeMB', () => {
 });
 
 describe('truncate', () => {
+  it('returns nothing when there is no room', () => {
+    expect(truncate('hello', 0)).toBe('');
+    expect(truncate('hello', -1)).toBe('');
+  });
+
   it('returns the string unchanged when shorter than the limit', () => {
     expect(truncate('hi', 10)).toBe('hi');
   });

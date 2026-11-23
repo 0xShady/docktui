@@ -1,6 +1,7 @@
 import blessed from 'neo-blessed';
 import type { ContainerInfo } from '@models/docker';
 import { t } from '@theme';
+import { columnWidths } from '@utils/columns';
 import { padEnd, truncate } from '@utils/format';
 import {
   colorByStatus,
@@ -23,7 +24,7 @@ export interface RowStats extends MemStats {
   cpuPercent: number;
 }
 
-type ColWidths = [number, number, number, number, number, number, number];
+const HEADERS = ['NAME', 'IMAGE', 'STATUS & UPTIME', 'NET', 'CPU', 'MEM', 'PORTS'];
 
 type SelectHandler = (container: ContainerInfo) => void;
 type NavigateHandler = (container: ContainerInfo | null) => void;
@@ -122,30 +123,26 @@ export class ContainerList {
     this.wrapper.hide();
   }
 
-  private calcColWidths(inner: number): ColWidths {
-    const c1 = Math.floor(inner * 0.21);
-    const c2 = Math.floor(inner * 0.17);
-    const c3 = Math.floor(inner * 0.22);
-    const c4 = Math.floor(inner * 0.1);
-    const c5 = Math.floor(inner * 0.08);
-    const c6 = Math.max(this.memDisplay === 'absolute' ? 11 : 0, Math.floor(inner * 0.08));
-    const c7 = Math.max(1, inner - c1 - c2 - c3 - c4 - c5 - c6);
-    return [c1, c2, c3, c4, c5, c6, c7];
+  private calcColWidths(inner: number): number[] {
+    const absolute = this.memDisplay === 'absolute';
+    return columnWidths(inner, [
+      { weight: 0.21, min: 16, floor: 12 },
+      { weight: 0.17, min: 12, floor: 5 },
+      { weight: 0.22, min: 17, floor: 9 },
+      { weight: 0.1, min: 8, floor: 4 },
+      { weight: 0.08, min: 7, floor: 6 },
+      { weight: 0.08, min: absolute ? 11 : 7, floor: absolute ? 9 : 6 },
+      { weight: 0, min: 9, floor: 5 },
+    ]);
   }
 
-  private renderHeader([c1, c2, c3, c4, c5, c6]: ColWidths): void {
-    const h1 = padEnd(t.comment(' NAME'), c1 + 1);
-    const h2 = padEnd(t.comment('IMAGE'), c2);
-    const h3 = padEnd(t.comment('STATUS & UPTIME'), c3);
-    const h4 = padEnd(t.comment('NET'), c4);
-    const h5 = padEnd(t.comment('CPU'), c5);
-    const h6 = padEnd(t.comment('MEM'), c6);
-    const h7 = t.comment('PORTS');
-    this.header.setContent(`${h1}${h2}${h3}${h4}${h5}${h6}${h7}`);
+  private renderHeader(widths: number[]): void {
+    const cells = HEADERS.map((label, i) => padEnd(t.comment(truncate(label, widths[i] - 1)), widths[i]));
+    this.header.setContent(` ${cells.join('')}`);
   }
 
-  private buildRow(c: ContainerInfo, [c1, c2, c3, c4, c5, c6, c7]: ColWidths, stats?: RowStats): string {
-    const nameRaw = truncate(c.name, Math.max(1, c1 - 2));
+  private buildRow(c: ContainerInfo, [c1, c2, c3, c4, c5, c6, c7]: number[], stats?: RowStats): string {
+    const nameRaw = truncate(c.name, Math.max(1, c1 - 3));
     const col1 = padEnd(`${statusDot(c)} ${nameRaw}`, c1);
 
     const imageRaw = truncate(c.image, Math.max(1, c2 - 1));

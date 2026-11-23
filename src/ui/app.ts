@@ -250,6 +250,10 @@ export class App {
     }
 
     this.screen.key(['h'], this.toggleHelp);
+    this.screen.key(['escape'], () => {
+      if (this.overlayOpen || this.isModalOpen()) return;
+      if (this.activeView === 'stacks') this.stacksTab.clearFilter();
+    });
 
     this.screen.key(['m'], () => {
       if (this.overlayOpen || this.isModalOpen()) return;

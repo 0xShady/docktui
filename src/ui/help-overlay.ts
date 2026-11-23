@@ -91,7 +91,7 @@ export class HelpOverlay {
       row('s / r / K', 'On a service: stop / restart / kill (confirm dialog)'),
       row('S', 'On a service: start it when stopped'),
       row('d', 'On a service: remove it when stopped (confirm dialog)'),
-      row('/', 'Filter stacks and services (Esc cancels)'),
+      row('/', 'Filter stacks and services (Esc clears it)'),
       section('Containers view'),
       row('↑ ↓ / j k', 'Navigate list'),
       row('Enter', 'Open detail panel'),
