@@ -1,6 +1,7 @@
 import blessed from 'neo-blessed';
 import { ConfirmDialog } from '@ui/containers/confirm-dialog';
 import { t } from '@theme';
+import { columnWidths, type WeightedColumn } from '@utils/columns';
 import { padEnd, truncate } from '@utils/format';
 import {
   createCenteredMessage,
@@ -13,11 +14,9 @@ import {
 type ErrorHandler = (message: string) => void;
 type NavigateHandler<T> = (item: T | null) => void;
 
-export interface ResourceColumn<T> {
+export interface ResourceColumn<T> extends WeightedColumn {
   /** Header label; truncated to the column width so it can never overflow. */
   header: string;
-  /** Fraction of the inner width; the final column absorbs the remainder. */
-  weight: number;
   /** Colored cell content, already truncated to fit `width` (the base pads it). */
   render: (item: T, width: number) => string;
 }
@@ -179,7 +178,7 @@ export class ResourceListTab<T> {
     this.messageBox.height = 1;
 
     const innerWidth = Math.max(10, (this.list.width as number) - 2);
-    const widths = this.calcWidths(innerWidth);
+    const widths = columnWidths(innerWidth, this.config.columns);
 
     this.renderHeader(widths);
 
@@ -224,22 +223,6 @@ export class ResourceListTab<T> {
     this.errorHandlers.forEach((h) => h(msg));
   }
 
-  private calcWidths(inner: number): number[] {
-    const cols = this.config.columns;
-    const widths: number[] = [];
-    let used = 0;
-    for (let i = 0; i < cols.length; i++) {
-      if (i === cols.length - 1) {
-        widths.push(Math.max(1, inner - used));
-      } else {
-        const w = Math.floor(inner * cols[i].weight);
-        widths.push(w);
-        used += w;
-      }
-    }
-    return widths;
-  }
-
   private renderHeader(widths: number[]): void {
     const cols = this.config.columns;
     const parts = cols.map((col, i) => {
@@ -248,7 +231,7 @@ export class ResourceListTab<T> {
       // its rows by one), matching the data offset below.
       if (i === 0) return padEnd(t.comment(` ${truncate(col.header, w - 1)}`), w + 1);
       if (i === cols.length - 1) return t.comment(truncate(col.header, w));
-      return padEnd(t.comment(truncate(col.header, w)), w);
+      return padEnd(t.comment(truncate(col.header, w - 1)), w);
     });
     this.headerBox.setContent(parts.join(''));
   }

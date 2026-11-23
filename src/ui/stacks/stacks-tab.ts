@@ -214,6 +214,10 @@ export class StacksTab {
     return this.filterOpen;
   }
 
+  clearFilter(): void {
+    if (this.tree.getFilter()) this.applyFilter('');
+  }
+
   getSelected(): StackTreeSelection {
     return this.tree.getSelected();
   }

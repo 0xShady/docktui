@@ -137,7 +137,7 @@ Requires the `docker` CLI to be on your `PATH`. docktui launches your platform's
 | `Enter` | On a stack: toggle expand. On a service: open detail panel |
 | `u` / `d` | On a stack: `docker compose up -d` / `down` (confirm) |
 | `r` / `p` / `B` | On a stack: `docker compose restart` / `pull` / `up --build -d` |
-| `/` | Open filter (`Esc` to clear) |
+| `/` | Open filter (`Enter` applies it, `Esc` clears it) |
 | `l` | Open log viewer |
 | `x` | Shell into selected running container |
 | `s` / `r` / `K` | On a service: stop / restart / kill running container (confirm) |

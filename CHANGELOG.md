@@ -13,6 +13,10 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - The detail panel shows `[K] Kill`. It still said `[k]` after kill moved to `K`
   in 0.4.2.
+- `Esc` clears an applied filter in Stacks. Before, it only worked while the
+  filter input was open.
+- Columns no longer run into each other in Containers, Images, Volumes and
+  Networks.
 
 ### Changed
 
