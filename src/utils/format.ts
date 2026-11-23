@@ -57,6 +57,7 @@ export function relativeTime(date: Date): string {
 
 export function truncate(s: string, n: number): string {
   if (s.length <= n) return s;
+  if (n <= 0) return '';
   return `${s.slice(0, n - 1)}…`;
 }
 
