@@ -52,7 +52,6 @@
     "release": "sh scripts/release.sh"
   },
   "dependencies": {
-    "dayjs": "^1.11.13",
     "dockerode": "^5.0.1",
     "neo-blessed": "^0.2.0",
     "smol-toml": "^1.9.1"

@@ -7,6 +7,15 @@ this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Fixed
+
+- The detail panel shows `[K] Kill`. It still said `[k]` after kill moved to `K`
+  in 0.4.2.
+
+### Changed
+
+- `dayjs` is no longer a dependency; relative times come from a small helper.
+
 ## [0.4.2] - 2026-11-09
 
 ### Changed
